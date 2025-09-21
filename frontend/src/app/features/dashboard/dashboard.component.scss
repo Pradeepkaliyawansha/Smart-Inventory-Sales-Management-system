@@ -1,0 +1,194 @@
+.dashboard-container {
+  padding: 0;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.summary-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  mat-card-header {
+    mat-icon[mat-card-avatar] {
+      font-size: 32px;
+      width: 48px;
+      height: 48px;
+      line-height: 48px;
+      border-radius: 12px;
+    }
+  }
+
+  .metric-value {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 16px 0 8px 0;
+  }
+
+  .metric-subtext {
+    font-size: 0.875rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+
+    .warning-icon {
+      font-size: 16px;
+      margin-right: 4px;
+      color: #ff9800;
+    }
+  }
+}
+
+.sales-card mat-icon[mat-card-avatar] {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  color: white;
+}
+
+.products-card mat-icon[mat-card-avatar] {
+  background: linear-gradient(135deg, #2196f3, #1976d2);
+  color: white;
+}
+
+.customers-card mat-icon[mat-card-avatar] {
+  background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+  color: white;
+}
+
+.orders-card mat-icon[mat-card-avatar] {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: white;
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.chart-card {
+  .chart-container {
+    height: 400px;
+    position: relative;
+  }
+}
+
+.tables-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.table-card {
+  mat-card-header {
+    position: relative;
+
+    .header-action {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  .table-container {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+}
+
+.recent-sales-table {
+  width: 100%;
+
+  .mat-mdc-cell,
+  .mat-mdc-header-cell {
+    border: none;
+  }
+
+  .mat-mdc-row:hover {
+    background-color: #f5f5f5;
+  }
+}
+
+.stock-alerts-table {
+  width: 100%;
+
+  .product-name {
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  .category-name {
+    font-size: 0.75rem;
+    color: #666;
+  }
+
+  .mat-mdc-cell,
+  .mat-mdc-header-cell {
+    border: none;
+  }
+
+  .mat-mdc-row:hover {
+    background-color: #f5f5f5;
+  }
+}
+
+.refresh-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: linear-gradient(135deg, #3f51b5, #303f9f);
+  color: white;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+
+  p {
+    margin-top: 24px;
+    font-size: 1.1rem;
+    color: #666;
+  }
+}
+
+@media (max-width: 1200px) {
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tables-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container {
+    height: 300px;
+  }
+}

@@ -1,0 +1,95 @@
+<div class="login-container">
+  <div class="login-card-container">
+    <mat-card class="login-card">
+      <mat-card-header class="login-header">
+        <div mat-card-avatar class="login-avatar">
+          <mat-icon>inventory</mat-icon>
+        </div>
+        <mat-card-title>Inventory Management</mat-card-title>
+        <mat-card-subtitle>Sign in to your account</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form
+          [formGroup]="loginForm"
+          (ngSubmit)="onSubmit()"
+          class="login-form"
+        >
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Username</mat-label>
+            <input
+              matInput
+              formControlName="username"
+              placeholder="Enter your username"
+              autocomplete="username"
+            />
+            <mat-icon matSuffix>person</mat-icon>
+            <mat-error
+              *ngIf="
+                loginForm.get('username')?.invalid &&
+                loginForm.get('username')?.touched
+              "
+            >
+              {{ getErrorMessage("username") }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input
+              matInput
+              [type]="hidePassword ? 'password' : 'text'"
+              formControlName="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="hidePassword = !hidePassword"
+            >
+              <mat-icon>{{
+                hidePassword ? "visibility" : "visibility_off"
+              }}</mat-icon>
+            </button>
+            <mat-error
+              *ngIf="
+                loginForm.get('password')?.invalid &&
+                loginForm.get('password')?.touched
+              "
+            >
+              {{ getErrorMessage("password") }}
+            </mat-error>
+          </mat-form-field>
+
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            class="login-button full-width"
+            [disabled]="loginForm.invalid || loading"
+          >
+            <mat-spinner
+              *ngIf="loading"
+              diameter="20"
+              class="login-spinner"
+            ></mat-spinner>
+            <span *ngIf="!loading">Sign In</span>
+            <span *ngIf="loading">Signing In...</span>
+          </button>
+        </form>
+      </mat-card-content>
+
+      <mat-card-actions class="login-actions">
+        <div class="demo-credentials">
+          <p><strong>Demo Credentials:</strong></p>
+          <p><code>Username: admin</code></p>
+          <p><code>Password: admin123</code></p>
+        </div>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div class="background-overlay"></div>
+</div>

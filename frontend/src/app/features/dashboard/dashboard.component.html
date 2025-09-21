@@ -1,0 +1,252 @@
+<div class="dashboard-container" *ngIf="!loading; else loadingTemplate">
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+    <mat-card class="summary-card sales-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>attach_money</mat-icon>
+        <mat-card-title>Total Sales</mat-card-title>
+        <mat-card-subtitle>All time</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="metric-value">
+          {{ formatCurrency(summary?.totalSalesAmount || 0) }}
+        </div>
+        <div class="metric-subtext">
+          Today: {{ formatCurrency(summary?.totalSalesAmountToday || 0) }}
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="summary-card products-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>inventory</mat-icon>
+        <mat-card-title>Products</mat-card-title>
+        <mat-card-subtitle>In stock</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="metric-value">{{ summary?.totalProducts || 0 }}</div>
+        <div class="metric-subtext" *ngIf="summary?.lowStockProductsCount">
+          <mat-icon class="warning-icon">warning</mat-icon>
+          {{ summary.lowStockProductsCount }} low stock
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="summary-card customers-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>people</mat-icon>
+        <mat-card-title>Customers</mat-card-title>
+        <mat-card-subtitle>Total registered</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="metric-value">{{ summary?.totalCustomers || 0 }}</div>
+        <div class="metric-subtext">Active customers</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="summary-card orders-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>shopping_cart</mat-icon>
+        <mat-card-title>Orders</mat-card-title>
+        <mat-card-subtitle>Total processed</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="metric-value">{{ summary?.totalSalesCount || 0 }}</div>
+        <div class="metric-subtext">
+          Today: {{ summary?.totalSalesCountToday || 0 }}
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="charts-row">
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Sales Trend</mat-card-title>
+        <mat-card-subtitle>Daily sales for the last 30 days</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="chart-container">
+          <canvas
+            baseChart
+            [data]="salesChartData"
+            [options]="salesChartOptions"
+            type="line"
+          >
+          </canvas>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Top Products</mat-card-title>
+        <mat-card-subtitle>By revenue</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="chart-container">
+          <canvas
+            baseChart
+            [data]="topProductsChartData"
+            [options]="topProductsChartOptions"
+            type="doughnut"
+          >
+          </canvas>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Data Tables Row -->
+  <div class="tables-row">
+    <!-- Recent Sales -->
+    <mat-card class="table-card">
+      <mat-card-header>
+        <mat-card-title>Recent Sales</mat-card-title>
+        <mat-card-subtitle>Latest transactions</mat-card-subtitle>
+        <button mat-icon-button routerLink="/sales" class="header-action">
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="table-container">
+          <table
+            mat-table
+            [dataSource]="recentSales"
+            class="recent-sales-table"
+          >
+            <ng-container matColumnDef="invoiceNumber">
+              <th mat-header-cell *matHeaderCellDef>Invoice #</th>
+              <td mat-cell *matCellDef="let sale">{{ sale.invoiceNumber }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="customerName">
+              <th mat-header-cell *matHeaderCellDef>Customer</th>
+              <td mat-cell *matCellDef="let sale">{{ sale.customerName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="totalAmount">
+              <th mat-header-cell *matHeaderCellDef>Amount</th>
+              <td mat-cell *matCellDef="let sale">
+                {{ formatCurrency(sale.totalAmount) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="saleDate">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let sale">
+                {{ formatDate(sale.saleDate) }}
+              </td>
+            </ng-container>
+
+            <tr
+              mat-header-row
+              *matHeaderRowDef="[
+                'invoiceNumber',
+                'customerName',
+                'totalAmount',
+                'saleDate'
+              ]"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="
+                let row;
+                columns: [
+                  'invoiceNumber',
+                  'customerName',
+                  'totalAmount',
+                  'saleDate'
+                ]
+              "
+            ></tr>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Low Stock Alerts -->
+    <mat-card class="table-card">
+      <mat-card-header>
+        <mat-card-title>Stock Alerts</mat-card-title>
+        <mat-card-subtitle>Products running low</mat-card-subtitle>
+        <button mat-icon-button routerLink="/products" class="header-action">
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="table-container">
+          <table
+            mat-table
+            [dataSource]="lowStockAlerts"
+            class="stock-alerts-table"
+          >
+            <ng-container matColumnDef="productName">
+              <th mat-header-cell *matHeaderCellDef>Product</th>
+              <td mat-cell *matCellDef="let alert">
+                <div>
+                  <div class="product-name">{{ alert.productName }}</div>
+                  <div class="category-name">{{ alert.categoryName }}</div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="currentStock">
+              <th mat-header-cell *matHeaderCellDef>Current</th>
+              <td mat-cell *matCellDef="let alert">
+                <mat-chip
+                  [color]="
+                    getStockStatusColor(alert.currentStock, alert.minStockLevel)
+                  "
+                >
+                  {{ alert.currentStock }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="minStockLevel">
+              <th mat-header-cell *matHeaderCellDef>Min Level</th>
+              <td mat-cell *matCellDef="let alert">
+                {{ alert.minStockLevel }}
+              </td>
+            </ng-container>
+
+            <tr
+              mat-header-row
+              *matHeaderRowDef="[
+                'productName',
+                'currentStock',
+                'minStockLevel'
+              ]"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="
+                let row;
+                columns: ['productName', 'currentStock', 'minStockLevel']
+              "
+            ></tr>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Refresh Button -->
+  <button
+    mat-fab
+    class="refresh-fab"
+    (click)="refreshDashboard()"
+    matTooltip="Refresh Dashboard"
+  >
+    <mat-icon>refresh</mat-icon>
+  </button>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading dashboard...</p>
+  </div>
+</ng-template>
