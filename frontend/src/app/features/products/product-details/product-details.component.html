@@ -1,0 +1,158 @@
+<div class="product-details-container" *ngIf="!loading; else loadingTemplate">
+  <div class="header-actions">
+    <button mat-button (click)="goBack()" class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Products
+    </button>
+    <button mat-raised-button color="primary" (click)="editProduct()">
+      <mat-icon>edit</mat-icon>
+      Edit Product
+    </button>
+  </div>
+
+  <div class="product-details-grid" *ngIf="product">
+    <!-- Product Image and Basic Info -->
+    <mat-card class="product-image-card">
+      <div class="product-image-container">
+        <img
+          *ngIf="product.imageUrl; else noImage"
+          [src]="product.imageUrl"
+          [alt]="product.name"
+          class="product-image"
+        />
+        <ng-template #noImage>
+          <div class="no-image-placeholder">
+            <mat-icon>image</mat-icon>
+            <span>No Image</span>
+          </div>
+        </ng-template>
+      </div>
+
+      <mat-card-content class="image-card-content">
+        <h2 class="product-name">{{ product.name }}</h2>
+        <p class="product-description" *ngIf="product.description">
+          {{ product.description }}
+        </p>
+
+        <div class="status-chips">
+          <mat-chip [color]="product.isActive ? 'primary' : 'warn'">
+            {{ product.isActive ? "Active" : "Inactive" }}
+          </mat-chip>
+          <mat-chip [class]="getStockStatus()">
+            {{ getStockStatusText() }}
+          </mat-chip>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Product Details -->
+    <mat-card class="product-info-card">
+      <mat-card-header>
+        <mat-card-title>Product Information</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>SKU</label>
+            <span>{{ product.sku }}</span>
+          </div>
+          <div class="info-item">
+            <label>Barcode</label>
+            <span>{{ product.barcode }}</span>
+          </div>
+          <div class="info-item">
+            <label>Category</label>
+            <span>{{ product.categoryName }}</span>
+          </div>
+          <div class="info-item">
+            <label>Supplier</label>
+            <span>{{ product.supplierName }}</span>
+          </div>
+          <div class="info-item">
+            <label>Created Date</label>
+            <span>{{ product.createdAt | dateFormat : "long" }}</span>
+          </div>
+          <div class="info-item">
+            <label>Last Updated</label>
+            <span>{{ product.updatedAt | dateFormat : "long" }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Pricing Information -->
+    <mat-card class="pricing-card">
+      <mat-card-header>
+        <mat-card-title>Pricing</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="pricing-grid">
+          <div class="pricing-item">
+            <label>Selling Price</label>
+            <span class="price-value">{{
+              product.price | currencyFormat
+            }}</span>
+          </div>
+          <div class="pricing-item">
+            <label>Cost Price</label>
+            <span class="price-value">{{
+              product.costPrice | currencyFormat
+            }}</span>
+          </div>
+          <div class="pricing-item">
+            <label>Profit per Unit</label>
+            <span class="price-value profit">
+              {{ product.price - product.costPrice | currencyFormat }}
+            </span>
+          </div>
+          <div class="pricing-item">
+            <label>Profit Margin</label>
+            <span class="price-value profit"
+              >{{ getProfitMargin() | number : "1.1-1" }}%</span
+            >
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Inventory Information -->
+    <mat-card class="inventory-card">
+      <mat-card-header>
+        <mat-card-title>Inventory</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="inventory-grid">
+          <div class="inventory-item">
+            <label>Current Stock</label>
+            <span class="stock-value" [class]="getStockStatus()">
+              {{ product.stockQuantity }}
+            </span>
+          </div>
+          <div class="inventory-item">
+            <label>Minimum Level</label>
+            <span>{{ product.minStockLevel }}</span>
+          </div>
+          <div class="inventory-item">
+            <label>Stock Value</label>
+            <span class="stock-value">
+              {{ product.stockQuantity * product.costPrice | currencyFormat }}
+            </span>
+          </div>
+          <div class="inventory-item" *ngIf="product.isLowStock">
+            <label>Reorder Suggested</label>
+            <span class="reorder-amount">
+              {{ product.minStockLevel * 2 - product.stockQuantity }}
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading product details...</p>
+  </div>
+</ng-template>

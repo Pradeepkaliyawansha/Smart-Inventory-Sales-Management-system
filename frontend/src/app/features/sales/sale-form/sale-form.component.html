@@ -1,0 +1,251 @@
+<div class="sale-form-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>Create New Sale</mat-card-title>
+      <mat-card-subtitle
+        >Add sale items and customer information</mat-card-subtitle
+      >
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="saleForm" (ngSubmit)="onSubmit()" class="sale-form">
+        <!-- Customer Selection -->
+        <div class="form-section">
+          <h3>Customer Information</h3>
+          <mat-form-field appearance="outline" class="customer-field">
+            <mat-label>Search Customer</mat-label>
+            <input
+              matInput
+              formControlName="customerSearch"
+              [matAutocomplete]="customerAuto"
+              placeholder="Type customer name or email"
+            />
+            <mat-autocomplete
+              #customerAuto="matAutocomplete"
+              [displayWith]="null"
+            >
+              <mat-option
+                *ngFor="let customer of filteredCustomers | async"
+                [value]="customer"
+                (onSelectionChange)="onCustomerSelect(customer)"
+              >
+                <div class="customer-option">
+                  <div class="customer-name">{{ customer.name }}</div>
+                  <div class="customer-email" *ngIf="customer.email">
+                    {{ customer.email }}
+                  </div>
+                </div>
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error
+              *ngIf="
+                saleForm.get('customerId')?.invalid &&
+                saleForm.get('customerId')?.touched
+              "
+            >
+              Customer is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Sale Items -->
+        <div class="form-section">
+          <div class="section-header">
+            <h3>Sale Items</h3>
+            <button
+              mat-raised-button
+              type="button"
+              (click)="addSaleItem()"
+              class="add-item-button"
+            >
+              <mat-icon>add</mat-icon>
+              Add Item
+            </button>
+          </div>
+
+          <div class="sale-items-container">
+            <div
+              *ngFor="let item of saleItems.controls; let i = index"
+              [formGroup]="item"
+              class="sale-item-row"
+            >
+              <mat-form-field appearance="outline" class="product-field">
+                <mat-label>Product</mat-label>
+                <mat-select
+                  formControlName="productId"
+                  (selectionChange)="onProductChange(i)"
+                >
+                  <mat-option
+                    *ngFor="let product of products"
+                    [value]="product.id"
+                  >
+                    {{ product.name }} (Stock: {{ product.stockQuantity }})
+                  </mat-option>
+                </mat-select>
+                <mat-error
+                  *ngIf="
+                    item.get('productId')?.invalid &&
+                    item.get('productId')?.touched
+                  "
+                >
+                  Product is required
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="quantity-field">
+                <mat-label>Quantity</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  formControlName="quantity"
+                  min="1"
+                />
+                <mat-error
+                  *ngIf="
+                    item.get('quantity')?.invalid &&
+                    item.get('quantity')?.touched
+                  "
+                >
+                  Valid quantity required
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="price-field">
+                <mat-label>Unit Price</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  formControlName="unitPrice"
+                  step="0.01"
+                  min="0"
+                />
+                <span matPrefix>$&nbsp;</span>
+                <mat-error
+                  *ngIf="
+                    item.get('unitPrice')?.invalid &&
+                    item.get('unitPrice')?.touched
+                  "
+                >
+                  Valid price required
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="discount-field">
+                <mat-label>Discount %</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  formControlName="discountPercentage"
+                  min="0"
+                  max="100"
+                />
+                <span matSuffix>%</span>
+              </mat-form-field>
+
+              <div class="item-total">
+                {{
+                  (item.get("quantity")?.value || 0) *
+                    (item.get("unitPrice")?.value || 0) *
+                    (1 - (item.get("discountPercentage")?.value || 0) / 100)
+                    | currencyFormat
+                }}
+              </div>
+
+              <button
+                mat-icon-button
+                type="button"
+                (click)="removeSaleItem(i)"
+                [disabled]="saleItems.length <= 1"
+                class="remove-item-button"
+                matTooltip="Remove Item"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment and Notes -->
+        <div class="form-section">
+          <h3>Payment Information</h3>
+          <div class="payment-row">
+            <mat-form-field appearance="outline" class="payment-method-field">
+              <mat-label>Payment Method</mat-label>
+              <mat-select formControlName="paymentMethod">
+                <mat-option
+                  *ngFor="let method of paymentMethods"
+                  [value]="method"
+                >
+                  {{ getPaymentMethodName(method) }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="notes-field">
+              <mat-label>Notes (Optional)</mat-label>
+              <textarea
+                matInput
+                formControlName="notes"
+                placeholder="Add any notes about this sale"
+                rows="2"
+              ></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Sale Summary -->
+        <div class="form-section">
+          <mat-card class="summary-card">
+            <mat-card-header>
+              <mat-card-title>Sale Summary</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="summary-row">
+                <span>Subtotal:</span>
+                <span>{{ getSubTotal() | currencyFormat }}</span>
+              </div>
+              <div class="summary-row">
+                <span>Tax (10%):</span>
+                <span>{{ getTaxAmount() | currencyFormat }}</span>
+              </div>
+              <div class="summary-row total-row">
+                <span>Total Amount:</span>
+                <span class="total-amount">{{
+                  getTotalAmount() | currencyFormat
+                }}</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            mat-button
+            type="button"
+            (click)="onCancel()"
+            [disabled]="loading"
+            class="cancel-button"
+          >
+            Cancel
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="saleForm.invalid || loading || saleItems.length === 0"
+            class="submit-button"
+          >
+            <mat-spinner
+              *ngIf="loading"
+              diameter="20"
+              class="button-spinner"
+            ></mat-spinner>
+            <span *ngIf="!loading">Create Sale</span>
+            <span *ngIf="loading">Creating Sale...</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,396 @@
+.invoice-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.invoice-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+
+  .back-button {
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+
+  button[mat-raised-button] {
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+.invoice-content {
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: "Arial", sans-serif;
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #3f51b5;
+
+  .company-info {
+    .company-name {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #3f51b5;
+      margin: 0 0 16px 0;
+    }
+
+    .company-details {
+      font-size: 0.875rem;
+      color: #666;
+      line-height: 1.5;
+
+      p {
+        margin: 2px 0;
+      }
+    }
+  }
+
+  .invoice-info {
+    text-align: right;
+
+    .invoice-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #3f51b5;
+      margin: 0 0 16px 0;
+    }
+
+    .invoice-details {
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        min-width: 200px;
+
+        .label {
+          font-weight: 600;
+          color: #333;
+        }
+
+        .value {
+          color: #666;
+        }
+      }
+    }
+  }
+}
+
+.customer-section {
+  margin-bottom: 32px;
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .customer-info {
+    .customer-name {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #333;
+    }
+  }
+}
+
+.items-section {
+  margin-bottom: 32px;
+
+  .items-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+
+    th {
+      background-color: #f8f9fa;
+      padding: 12px 8px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #dee2e6;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 12px 8px;
+      border-bottom: 1px solid #dee2e6;
+      color: #666;
+    }
+
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    th:last-child,
+    td:last-child {
+      text-align: right;
+      font-weight: 500;
+    }
+  }
+}
+
+.totals-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 32px;
+
+  .totals-table {
+    min-width: 300px;
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+
+      &.grand-total {
+        border-top: 2px solid #3f51b5;
+        border-bottom: 2px solid #3f51b5;
+        margin-top: 8px;
+        padding: 12px 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+
+        .label,
+        .value {
+          color: #3f51b5;
+        }
+      }
+
+      .label {
+        font-weight: 500;
+        color: #333;
+      }
+
+      .value {
+        font-weight: 500;
+        color: #666;
+
+        &.balance-due {
+          color: #f44336;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+.payment-section {
+  margin-bottom: 32px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+
+  .payment-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .payment-method,
+    .payment-status {
+      .label {
+        font-weight: 600;
+        color: #333;
+        margin-right: 8px;
+      }
+
+      .value {
+        color: #666;
+
+        &.completed {
+          color: #4caf50;
+          font-weight: 600;
+        }
+
+        &.pending {
+          color: #ff9800;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+.notes-section {
+  margin-bottom: 32px;
+  padding: 16px;
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+  border-radius: 0 6px 6px 0;
+
+  h4 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 1rem;
+  }
+
+  p {
+    margin: 0;
+    color: #666;
+    line-height: 1.5;
+  }
+}
+
+.invoice-footer {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+
+  .footer-text {
+    p {
+      margin: 8px 0;
+      color: #666;
+
+      &:first-child {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #333;
+      }
+
+      &.terms {
+        font-size: 0.8rem;
+        color: #999;
+      }
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+
+  p {
+    margin-top: 24px;
+    font-size: 1.1rem;
+    color: #666;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .print-hide {
+    display: none !important;
+  }
+
+  .invoice-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .invoice-content {
+    box-shadow: none;
+    border-radius: 0;
+    padding: 20px;
+  }
+
+  .invoice-header {
+    .company-name {
+      font-size: 1.5rem;
+    }
+
+    .invoice-title {
+      font-size: 1.75rem;
+    }
+  }
+
+  .items-table {
+    font-size: 0.85rem;
+
+    th {
+      font-size: 0.75rem;
+    }
+  }
+
+  /* Ensure page breaks don't split important sections */
+  .invoice-header,
+  .customer-section,
+  .totals-section {
+    page-break-inside: avoid;
+  }
+
+  /* Force footer to bottom of page */
+  .invoice-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    page-break-inside: avoid;
+  }
+}
+
+@media (max-width: 768px) {
+  .invoice-container {
+    padding: 10px;
+  }
+
+  .invoice-content {
+    padding: 20px;
+  }
+
+  .invoice-header {
+    flex-direction: column;
+    gap: 24px;
+
+    .invoice-info {
+      text-align: left;
+
+      .invoice-details {
+        .detail-row {
+          min-width: auto;
+        }
+      }
+    }
+  }
+
+  .items-table {
+    font-size: 0.8rem;
+
+    th,
+    td {
+      padding: 8px 4px;
+    }
+
+    th {
+      font-size: 0.7rem;
+    }
+  }
+
+  .totals-section {
+    .totals-table {
+      min-width: 250px;
+    }
+  }
+
+  .payment-section {
+    .payment-info {
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
+  }
+}

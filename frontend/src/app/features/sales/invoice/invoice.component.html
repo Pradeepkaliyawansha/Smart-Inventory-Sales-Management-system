@@ -1,0 +1,155 @@
+<div class="invoice-container" *ngIf="!loading; else loadingTemplate">
+  <!-- Action Buttons (Print only) -->
+  <div class="invoice-actions print-hide">
+    <button mat-button (click)="goBack()" class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Sales
+    </button>
+    <button mat-raised-button color="primary" (click)="printInvoice()">
+      <mat-icon>print</mat-icon>
+      Print Invoice
+    </button>
+  </div>
+
+  <!-- Invoice Content -->
+  <div class="invoice-content" *ngIf="sale">
+    <!-- Invoice Header -->
+    <div class="invoice-header">
+      <div class="company-info">
+        <h1 class="company-name">Your Company Name</h1>
+        <div class="company-details">
+          <p>123 Business Street</p>
+          <p>City, State 12345</p>
+          <p>Phone: (555) 123-4567</p>
+          <p>Email: info@company.com</p>
+        </div>
+      </div>
+      <div class="invoice-info">
+        <h2 class="invoice-title">INVOICE</h2>
+        <div class="invoice-details">
+          <div class="detail-row">
+            <span class="label">Invoice #:</span>
+            <span class="value">{{ sale.invoiceNumber }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Date:</span>
+            <span class="value">{{ sale.saleDate | dateFormat : "long" }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Sales Person:</span>
+            <span class="value">{{ sale.salesPersonName }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Information -->
+    <div class="customer-section">
+      <h3>Bill To:</h3>
+      <div class="customer-info">
+        <div class="customer-name">{{ sale.customerName }}</div>
+        <!-- Add customer address/contact info here if available -->
+      </div>
+    </div>
+
+    <!-- Sale Items Table -->
+    <div class="items-section">
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Discount</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of sale.saleItems">
+            <td>{{ item.productName }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unitPrice | currencyFormat }}</td>
+            <td>{{ item.discountPercentage }}%</td>
+            <td>{{ item.totalPrice | currencyFormat }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Totals Section -->
+    <div class="totals-section">
+      <div class="totals-table">
+        <div class="total-row">
+          <span class="label">Subtotal:</span>
+          <span class="value">{{ sale.subTotal | currencyFormat }}</span>
+        </div>
+        <div class="total-row" *ngIf="sale.discountAmount > 0">
+          <span class="label">Discount:</span>
+          <span class="value">-{{ sale.discountAmount | currencyFormat }}</span>
+        </div>
+        <div class="total-row">
+          <span class="label">Tax:</span>
+          <span class="value">{{ sale.taxAmount | currencyFormat }}</span>
+        </div>
+        <div class="total-row grand-total">
+          <span class="label">Total Amount:</span>
+          <span class="value">{{ sale.totalAmount | currencyFormat }}</span>
+        </div>
+        <div class="total-row">
+          <span class="label">Paid Amount:</span>
+          <span class="value">{{ sale.paidAmount | currencyFormat }}</span>
+        </div>
+        <div class="total-row" *ngIf="sale.totalAmount - sale.paidAmount > 0">
+          <span class="label">Balance Due:</span>
+          <span class="value balance-due">{{
+            sale.totalAmount - sale.paidAmount | currencyFormat
+          }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Information -->
+    <div class="payment-section">
+      <div class="payment-info">
+        <div class="payment-method">
+          <span class="label">Payment Method:</span>
+          <span class="value">{{
+            getPaymentMethodName(sale.paymentMethod)
+          }}</span>
+        </div>
+        <div class="payment-status">
+          <span class="label">Status:</span>
+          <span
+            class="value"
+            [class]="sale.isCompleted ? 'completed' : 'pending'"
+          >
+            {{ sale.isCompleted ? "Completed" : "Pending" }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes Section -->
+    <div class="notes-section" *ngIf="sale.notes">
+      <h4>Notes:</h4>
+      <p>{{ sale.notes }}</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="invoice-footer">
+      <div class="footer-text">
+        <p>Thank you for your business!</p>
+        <p class="terms">
+          Terms: Net 30 days. Payment due within 30 days of invoice date.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading invoice...</p>
+  </div>
+</ng-template>

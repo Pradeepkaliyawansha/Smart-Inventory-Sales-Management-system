@@ -1,0 +1,271 @@
+<div class="product-form-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        {{ isEditMode ? "Edit Product" : "Add New Product" }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{
+          isEditMode ? "Update product information" : "Enter product details"
+        }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form
+        [formGroup]="productForm"
+        (ngSubmit)="onSubmit()"
+        class="product-form"
+      >
+        <div class="form-row">
+          <!-- Product Name -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Product Name</mat-label>
+            <input
+              matInput
+              formControlName="name"
+              placeholder="Enter product name"
+            />
+            <mat-error
+              *ngIf="
+                productForm.get('name')?.invalid &&
+                productForm.get('name')?.touched
+              "
+            >
+              {{ getErrorMessage("name") }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- SKU -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>SKU</mat-label>
+            <input matInput formControlName="sku" placeholder="Enter SKU" />
+            <mat-error
+              *ngIf="
+                productForm.get('sku')?.invalid &&
+                productForm.get('sku')?.touched
+              "
+            >
+              {{ getErrorMessage("sku") }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <!-- Barcode -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Barcode</mat-label>
+            <input
+              matInput
+              formControlName="barcode"
+              placeholder="Enter barcode"
+            />
+            <mat-error
+              *ngIf="
+                productForm.get('barcode')?.invalid &&
+                productForm.get('barcode')?.touched
+              "
+            >
+              {{ getErrorMessage("barcode") }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Category -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Category</mat-label>
+            <mat-select formControlName="categoryId">
+              <mat-option
+                *ngFor="let category of categories"
+                [value]="category.id"
+              >
+                {{ category.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error
+              *ngIf="
+                productForm.get('categoryId')?.invalid &&
+                productForm.get('categoryId')?.touched
+              "
+            >
+              {{ getErrorMessage("categoryId") }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Description -->
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Description</mat-label>
+          <textarea
+            matInput
+            formControlName="description"
+            placeholder="Enter product description"
+            rows="3"
+          ></textarea>
+          <mat-error
+            *ngIf="
+              productForm.get('description')?.invalid &&
+              productForm.get('description')?.touched
+            "
+          >
+            {{ getErrorMessage("description") }}
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-row">
+          <!-- Price -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Price</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="price"
+              placeholder="0.00"
+            />
+            <span matPrefix>$&nbsp;</span>
+            <mat-error
+              *ngIf="
+                productForm.get('price')?.invalid &&
+                productForm.get('price')?.touched
+              "
+            >
+              {{ getErrorMessage("price") }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Cost Price -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Cost Price</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="costPrice"
+              placeholder="0.00"
+            />
+            <span matPrefix>$&nbsp;</span>
+            <mat-error
+              *ngIf="
+                productForm.get('costPrice')?.invalid &&
+                productForm.get('costPrice')?.touched
+              "
+            >
+              {{ getErrorMessage("costPrice") }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <!-- Stock Quantity -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Stock Quantity</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="stockQuantity"
+              placeholder="0"
+            />
+            <mat-error
+              *ngIf="
+                productForm.get('stockQuantity')?.invalid &&
+                productForm.get('stockQuantity')?.touched
+              "
+            >
+              {{ getErrorMessage("stockQuantity") }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Min Stock Level -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Minimum Stock Level</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="minStockLevel"
+              placeholder="0"
+            />
+            <mat-error
+              *ngIf="
+                productForm.get('minStockLevel')?.invalid &&
+                productForm.get('minStockLevel')?.touched
+              "
+            >
+              {{ getErrorMessage("minStockLevel") }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <!-- Supplier -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Supplier</mat-label>
+            <mat-select formControlName="supplierId">
+              <mat-option
+                *ngFor="let supplier of suppliers"
+                [value]="supplier.id"
+              >
+                {{ supplier.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error
+              *ngIf="
+                productForm.get('supplierId')?.invalid &&
+                productForm.get('supplierId')?.touched
+              "
+            >
+              {{ getErrorMessage("supplierId") }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Image URL -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Image URL</mat-label>
+            <input
+              matInput
+              formControlName="imageUrl"
+              placeholder="Enter image URL"
+            />
+            <mat-error
+              *ngIf="
+                productForm.get('imageUrl')?.invalid &&
+                productForm.get('imageUrl')?.touched
+              "
+            >
+              {{ getErrorMessage("imageUrl") }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            mat-button
+            type="button"
+            (click)="onCancel()"
+            [disabled]="loading"
+            class="cancel-button"
+          >
+            Cancel
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="productForm.invalid || loading"
+            class="submit-button"
+          >
+            <mat-spinner
+              *ngIf="loading"
+              diameter="20"
+              class="button-spinner"
+            ></mat-spinner>
+            <span *ngIf="!loading">{{
+              isEditMode ? "Update Product" : "Create Product"
+            }}</span>
+            <span *ngIf="loading">{{
+              isEditMode ? "Updating..." : "Creating..."
+            }}</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

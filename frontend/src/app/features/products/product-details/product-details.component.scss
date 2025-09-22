@@ -1,0 +1,252 @@
+.product-details-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  .back-button {
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+
+  button[mat-raised-button] {
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+.product-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.product-image-card {
+  grid-column: 1 / -1;
+
+  .product-image-container {
+    width: 100%;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    margin-bottom: 16px;
+
+    .product-image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .no-image-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #999;
+
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 8px;
+      }
+    }
+  }
+
+  .image-card-content {
+    text-align: center;
+
+    .product-name {
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .product-description {
+      color: #666;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .status-chips {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+
+      mat-chip {
+        &.in-stock {
+          background-color: #c8e6c9;
+          color: #2e7d32;
+        }
+
+        &.low-stock {
+          background-color: #ffe0b2;
+          color: #f57c00;
+        }
+
+        &.out-of-stock {
+          background-color: #ffcdd2;
+          color: #d32f2f;
+        }
+      }
+    }
+  }
+}
+
+.product-info-card {
+  .info-grid {
+    display: grid;
+    gap: 16px;
+  }
+
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    label {
+      font-weight: 500;
+      color: #666;
+    }
+
+    span {
+      font-weight: 400;
+    }
+  }
+}
+
+.pricing-card {
+  .pricing-grid {
+    display: grid;
+    gap: 16px;
+  }
+
+  .pricing-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    label {
+      font-weight: 500;
+      color: #666;
+    }
+
+    .price-value {
+      font-weight: 500;
+      font-size: 1.1rem;
+
+      &.profit {
+        color: #4caf50;
+      }
+    }
+  }
+}
+
+.inventory-card {
+  grid-column: 1 / -1;
+
+  .inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+  }
+
+  .inventory-item {
+    text-align: center;
+    padding: 16px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+
+    label {
+      display: block;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 8px;
+      font-size: 0.875rem;
+    }
+
+    span {
+      display: block;
+      font-size: 1.25rem;
+      font-weight: 500;
+
+      &.stock-value {
+        &.in-stock {
+          color: #4caf50;
+        }
+
+        &.low-stock {
+          color: #ff9800;
+        }
+
+        &.out-of-stock {
+          color: #f44336;
+        }
+      }
+
+      &.reorder-amount {
+        color: #ff9800;
+      }
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+
+  p {
+    margin-top: 24px;
+    font-size: 1.1rem;
+    color: #666;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-image-card {
+    grid-column: 1;
+  }
+
+  .inventory-card {
+    grid-column: 1;
+
+    .inventory-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .header-actions {
+    flex-direction: column;
+    gap: 16px;
+  }
+}

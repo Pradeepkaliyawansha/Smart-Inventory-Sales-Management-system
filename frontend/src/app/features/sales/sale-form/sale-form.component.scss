@@ -1,0 +1,193 @@
+.sale-form-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.form-card {
+  mat-card-header {
+    margin-bottom: 24px;
+
+    mat-card-title {
+      font-size: 1.5rem;
+      font-weight: 500;
+    }
+
+    mat-card-subtitle {
+      margin-top: 8px;
+      color: #666;
+    }
+  }
+}
+
+.sale-form {
+  .form-section {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e0e0e0;
+
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    h3 {
+      margin: 0 0 16px 0;
+      color: #333;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+
+      .add-item-button {
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+
+  .customer-field {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .sale-items-container {
+    .sale-item-row {
+      display: grid;
+      grid-template-columns: 2fr 80px 120px 100px 120px 40px;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 16px;
+      padding: 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background-color: #fafafa;
+
+      .item-total {
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        color: #333;
+        font-size: 1.1rem;
+      }
+
+      .remove-item-button {
+        color: #f44336;
+
+        &:hover {
+          background-color: rgba(244, 67, 54, 0.1);
+        }
+
+        &[disabled] {
+          color: #ccc;
+        }
+      }
+    }
+  }
+
+  .payment-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+  }
+
+  .summary-card {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+
+      &.total-row {
+        border-top: 2px solid #dee2e6;
+        padding-top: 16px;
+        margin-top: 8px;
+        font-size: 1.1rem;
+        font-weight: 500;
+
+        .total-amount {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: #28a745;
+        }
+      }
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 2px solid #e0e0e0;
+
+    .submit-button {
+      min-width: 140px;
+      position: relative;
+
+      .button-spinner {
+        margin-right: 8px;
+      }
+    }
+
+    .cancel-button {
+      color: #666;
+    }
+  }
+}
+
+.customer-option {
+  .customer-name {
+    font-weight: 500;
+  }
+
+  .customer-email {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 2px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sale-items-container {
+    .sale-item-row {
+      grid-template-columns: 1fr;
+      gap: 8px;
+
+      .item-total {
+        order: -1;
+        justify-content: flex-end;
+        font-size: 1.2rem;
+        color: #28a745;
+        font-weight: 600;
+      }
+
+      .remove-item-button {
+        justify-self: center;
+      }
+    }
+  }
+
+  .payment-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+  }
+}
