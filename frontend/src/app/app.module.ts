@@ -48,7 +48,6 @@ import { ProductsModule } from './features/products/products.module';
 import { SalesModule } from './features/sales/sales.module';
 import { CustomersModule } from './features/customers/customers.module';
 import { ReportsModule } from './features/reports/reports.module';
-
 @NgModule({
   declarations: [AppComponent],
   imports: [
