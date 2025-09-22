@@ -4,24 +4,25 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 // Angular Material
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Chart.js
 import { NgChartsModule } from 'ng2-charts';
 
 // Components
 import { SalesReportComponent } from './sales-report/sales-report.component';
-import { InventoryReportComponent } from './inventory-report/inventory-report.component';
-import { ReportsOverviewComponent } from './reports-overview/reports-overview.component';
 
 // Shared Module
 import { SharedModule } from '../../shared/shared.module';
@@ -29,24 +30,17 @@ import { SharedModule } from '../../shared/shared.module';
 const routes = [
   {
     path: '',
-    component: ReportsOverviewComponent,
+    redirectTo: 'sales',
+    pathMatch: 'full',
   },
   {
     path: 'sales',
     component: SalesReportComponent,
   },
-  {
-    path: 'inventory',
-    component: InventoryReportComponent,
-  },
 ];
 
 @NgModule({
-  declarations: [
-    SalesReportComponent,
-    InventoryReportComponent,
-    ReportsOverviewComponent,
-  ],
+  declarations: [SalesReportComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -55,16 +49,19 @@ const routes = [
     SharedModule,
 
     // Angular Material
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
     MatSelectModule,
-    MatTableModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
     MatProgressSpinnerModule,
-    MatTabsModule,
+    MatSnackBarModule,
 
     // Chart.js
     NgChartsModule,

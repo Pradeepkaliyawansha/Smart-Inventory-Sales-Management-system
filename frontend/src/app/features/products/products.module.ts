@@ -9,20 +9,19 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
 
 // Components
 import { ProductListComponent } from './product-list/product-list.component';
 import { ProductFormComponent } from './product-form/product-form.component';
-import { ProductDetailsComponent } from './product-details/product-details.component';
 
 // Shared Module
 import { SharedModule } from '../../shared/shared.module';
@@ -40,18 +39,10 @@ const routes = [
     path: 'edit/:id',
     component: ProductFormComponent,
   },
-  {
-    path: ':id',
-    component: ProductDetailsComponent,
-  },
 ];
 
 @NgModule({
-  declarations: [
-    ProductListComponent,
-    ProductFormComponent,
-    ProductDetailsComponent,
-  ],
+  declarations: [ProductListComponent, ProductFormComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -65,15 +56,15 @@ const routes = [
     MatSortModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    MatSelectModule,
     MatDialogModule,
-    MatChipsModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule,
     MatTooltipModule,
+    MatChipsModule,
   ],
 })
 export class ProductsModule {}

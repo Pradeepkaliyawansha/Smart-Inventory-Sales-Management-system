@@ -1,17 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ChartData, ChartOptions } from 'chart.js';
 
 interface SalesData {
-  period: string;
   totalSales: number;
   totalRevenue: number;
   averageOrderValue: number;
-  topProducts: Array<{
-    name: string;
-    quantity: number;
-    revenue: number;
-  }>;
+  topProducts: TopProduct[];
+}
+
+interface TopProduct {
+  productName: string;
+  quantitySold: number;
+  revenue: number;
 }
 
 @Component({
@@ -24,7 +25,7 @@ export class SalesReportComponent implements OnInit {
   loading = false;
   salesData: SalesData | null = null;
 
-  // Chart configurations
+  // Chart data
   salesChartData: ChartData<'line'> = {
     labels: [],
     datasets: [],
@@ -37,10 +38,6 @@ export class SalesReportComponent implements OnInit {
       legend: {
         display: true,
         position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Sales Trend',
       },
     },
   };
@@ -58,51 +55,40 @@ export class SalesReportComponent implements OnInit {
         display: true,
         position: 'top',
       },
-      title: {
-        display: true,
-        text: 'Revenue by Period',
-      },
     },
   };
+
+  displayedColumns: string[] = ['productName', 'quantitySold', 'revenue'];
 
   constructor(private formBuilder: FormBuilder) {}
 
   ngOnInit(): void {
     this.createForm();
-    this.loadDefaultReport();
+    this.generateReport();
   }
 
   private createForm(): void {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(endDate.getDate() - 30);
-
     this.reportForm = this.formBuilder.group({
-      startDate: [startDate],
-      endDate: [endDate],
-      reportType: ['daily'],
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required],
+      reportType: ['monthly', Validators.required],
     });
-  }
-
-  private loadDefaultReport(): void {
-    this.generateReport();
   }
 
   generateReport(): void {
     if (this.reportForm.valid) {
       this.loading = true;
 
-      // Simulate API call
+      // Simulate API call with mock data
       setTimeout(() => {
         this.salesData = {
-          period: '30 Days',
-          totalSales: 142,
-          totalRevenue: 18450.5,
-          averageOrderValue: 129.93,
+          totalSales: 150,
+          totalRevenue: 25000,
+          averageOrderValue: 166.67,
           topProducts: [
-            { name: 'Product A', quantity: 45, revenue: 4500 },
-            { name: 'Product B', quantity: 32, revenue: 3200 },
-            { name: 'Product C', quantity: 28, revenue: 2800 },
+            { productName: 'Product A', quantitySold: 50, revenue: 10000 },
+            { productName: 'Product B', quantitySold: 30, revenue: 7500 },
+            { productName: 'Product C', quantitySold: 25, revenue: 5000 },
           ],
         };
 
@@ -112,38 +98,35 @@ export class SalesReportComponent implements OnInit {
     }
   }
 
+  exportReport(): void {
+    // Implementation for export functionality
+    console.log('Exporting report...');
+  }
+
   private setupCharts(): void {
-    // Sales trend chart
+    // Setup sales chart
     this.salesChartData = {
-      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
       datasets: [
         {
-          label: 'Sales Count',
-          data: [35, 42, 38, 27],
+          label: 'Sales',
+          data: [12, 19, 3, 5, 2],
           borderColor: '#3f51b5',
           backgroundColor: 'rgba(63, 81, 181, 0.1)',
-          fill: true,
         },
       ],
     };
 
-    // Revenue chart
+    // Setup revenue chart
     this.revenueChartData = {
       labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
       datasets: [
         {
           label: 'Revenue',
-          data: [4200, 5100, 4800, 4350],
+          data: [5000, 7500, 8000, 4500],
           backgroundColor: '#4caf50',
-          borderColor: '#388e3c',
-          borderWidth: 1,
         },
       ],
     };
-  }
-
-  exportReport(): void {
-    // Implement export functionality
-    console.log('Exporting sales report...');
   }
 }
