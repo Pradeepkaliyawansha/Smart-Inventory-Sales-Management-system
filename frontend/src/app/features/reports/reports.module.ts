@@ -17,6 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 // Chart.js
 import { NgChartsModule } from 'ng2-charts';
@@ -26,6 +27,8 @@ import { SalesReportComponent } from './sales-report/sales-report.component';
 
 // Shared Module
 import { SharedModule } from '../../shared/shared.module';
+import { InventoryReportComponent } from './inventory-report/inventory-report.component';
+import { MatChipsModule } from '@angular/material/chips';
 
 const routes = [
   {
@@ -40,12 +43,12 @@ const routes = [
 ];
 
 @NgModule({
-  declarations: [SalesReportComponent],
+  declarations: [],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    RouterModule.forChild(routes),
+    RouterModule,
     SharedModule,
 
     // Angular Material
@@ -62,6 +65,10 @@ const routes = [
     MatCardModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatProgressBarModule,
+    MatChipsModule,
+    SalesReportComponent,
+    InventoryReportComponent,
 
     // Chart.js
     NgChartsModule,

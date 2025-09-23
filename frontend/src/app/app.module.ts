@@ -49,7 +49,7 @@ import { SalesModule } from './features/sales/sales.module';
 import { CustomersModule } from './features/customers/customers.module';
 import { ReportsModule } from './features/reports/reports.module';
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -79,6 +79,7 @@ import { ReportsModule } from './features/reports/reports.module';
     MatBadgeModule,
     MatMenuModule,
     MatGridListModule,
+    AppComponent,
 
     // Chart.js
     NgChartsModule,

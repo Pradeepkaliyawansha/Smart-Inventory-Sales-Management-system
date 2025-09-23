@@ -25,6 +25,7 @@ import { ProductFormComponent } from './product-form/product-form.component';
 
 // Shared Module
 import { SharedModule } from '../../shared/shared.module';
+import { ProductDetailsComponent } from './product-details/product-details.component';
 
 const routes = [
   {
@@ -42,7 +43,11 @@ const routes = [
 ];
 
 @NgModule({
-  declarations: [ProductListComponent, ProductFormComponent],
+  declarations: [
+    ProductListComponent,
+    ProductFormComponent,
+    ProductDetailsComponent,
+  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,

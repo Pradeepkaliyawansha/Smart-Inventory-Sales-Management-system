@@ -25,7 +25,7 @@ const routes = [
 ];
 
 @NgModule({
-  declarations: [DashboardComponent],
+  declarations: [],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
@@ -38,6 +38,7 @@ const routes = [
     MatChipsModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    DashboardComponent,
 
     // Chart.js
     NgChartsModule,
