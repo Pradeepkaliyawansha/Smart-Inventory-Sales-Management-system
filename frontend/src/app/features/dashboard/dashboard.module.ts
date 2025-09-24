@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 // Angular Material
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
@@ -16,6 +15,7 @@ import { NgChartsModule } from 'ng2-charts';
 
 // Components
 import { DashboardComponent } from './dashboard.component';
+import { MatCardModule } from '@angular/material/card';
 
 const routes = [
   {
@@ -25,7 +25,7 @@ const routes = [
 ];
 
 @NgModule({
-  declarations: [],
+  declarations: [DashboardComponent],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
@@ -38,7 +38,6 @@ const routes = [
     MatChipsModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    DashboardComponent,
 
     // Chart.js
     NgChartsModule,

@@ -65,7 +65,7 @@
 
           <div class="sale-items-container">
             <div
-              *ngFor="let item of saleItems.controls; let i = index"
+              *ngFor="let item of saleItemsFormGroups; let i = index"
               [formGroup]="item"
               class="sale-item-row"
             >

@@ -12,7 +12,10 @@ import { map, startWith } from 'rxjs/operators';
 import { PaymentMethod } from '../../../core/models/sale.model';
 import { Customer } from '../../../core/models/customer.model';
 import { Product } from '../../../core/models/product.model';
-
+import { SaleService } from '../../../core/services/sale.service';
+import { CustomerService } from '../../../core/services/customer.service';
+import { ProductService } from '../../../core/services/product.service';
+import { NotificationService } from '../../../core/services/notification.service';
 @Component({
   selector: 'app-sale-form',
   templateUrl: './sale-form.component.html',
@@ -31,7 +34,11 @@ export class SaleFormComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private saleService: SaleService,
+    private customerService: CustomerService,
+    private productService: ProductService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -40,9 +47,28 @@ export class SaleFormComponent implements OnInit {
     this.setupCustomerFilter();
   }
 
+  onCustomerSelect(customer: Customer): void {
+    this.saleForm.patchValue({
+      customerId: customer.id,
+    });
+  }
+
+  // Fix the setupCustomerFilter method
+  private setupCustomerFilter(): void {
+    const customerSearchControl = this.saleForm.get('customerSearch');
+    if (customerSearchControl) {
+      this.filteredCustomers = customerSearchControl.valueChanges.pipe(
+        startWith(''),
+        map((value) => this._filterCustomers(value || ''))
+      );
+    }
+  }
+
+  // Update the form creation to include customerSearch
   private createForm(): void {
     this.saleForm = this.formBuilder.group({
       customerId: ['', Validators.required],
+      customerSearch: [''], // Add this field for autocomplete
       paymentMethod: [PaymentMethod.Cash, Validators.required],
       notes: [''],
       saleItems: this.formBuilder.array([this.createSaleItem()]),
@@ -58,6 +84,9 @@ export class SaleFormComponent implements OnInit {
     });
   }
 
+  get saleItemsFormGroups(): FormGroup[] {
+    return this.saleItems.controls as FormGroup[];
+  }
   private createSaleItem(): FormGroup {
     return this.formBuilder.group({
       productId: ['', Validators.required],
@@ -80,16 +109,23 @@ export class SaleFormComponent implements OnInit {
     this.saleItems.removeAt(index);
   }
 
-  onProductChange(item: AbstractControl, productId: number): void {
-    const product = this.products.find((p) => p.id === productId);
-    if (product) {
-      const itemGroup = item as FormGroup;
-      itemGroup.patchValue({
-        unitPrice: product.price,
-      });
+  onProductChange(index: number): void {
+    const item = this.saleItems.at(index);
+    const productId = item.get('productId')?.value;
+
+    if (productId) {
+      const product = this.products.find((p) => p.id === productId);
+      if (product) {
+        item.patchValue({
+          unitPrice: product.price,
+        });
+        // Trigger calculation after price update
+        this.onQuantityOrPriceChange(item);
+      }
     }
   }
 
+  // Also add this method to handle quantity/price changes
   onQuantityOrPriceChange(item: AbstractControl): void {
     const itemGroup = item as FormGroup;
     const quantity = itemGroup.get('quantity')?.value || 0;
@@ -100,74 +136,82 @@ export class SaleFormComponent implements OnInit {
     const discount = (subtotal * discountPercentage) / 100;
     const totalPrice = subtotal - discount;
 
-    itemGroup.patchValue({
-      totalPrice: totalPrice,
+    itemGroup.patchValue(
+      {
+        totalPrice: totalPrice,
+      },
+      { emitEvent: false }
+    ); // Prevent infinite loop
+
+    // Trigger total calculation
+    this.calculateTotals();
+  }
+
+  getSubTotal(): number {
+    let subTotal = 0;
+    this.saleItems.controls.forEach((item) => {
+      const quantity = item.get('quantity')?.value || 0;
+      const unitPrice = item.get('unitPrice')?.value || 0;
+      const discountPercentage = item.get('discountPercentage')?.value || 0;
+
+      const itemSubtotal = quantity * unitPrice;
+      const itemDiscount = (itemSubtotal * discountPercentage) / 100;
+      subTotal += itemSubtotal - itemDiscount;
     });
+    return subTotal;
+  }
+
+  getTaxAmount(): number {
+    const subTotal = this.getSubTotal();
+    const discountAmount = this.saleForm.get('discountAmount')?.value || 0;
+    return (subTotal - discountAmount) * 0.1; // 10% tax
+  }
+
+  getTotalAmount(): number {
+    const subTotal = this.getSubTotal();
+    const discountAmount = this.saleForm.get('discountAmount')?.value || 0;
+    const taxAmount = this.getTaxAmount();
+    return subTotal - discountAmount + taxAmount;
   }
 
   private calculateTotals(): void {
-    let subTotal = 0;
-
-    this.saleItems.controls.forEach((item) => {
-      const totalPrice = item.get('totalPrice')?.value || 0;
-      subTotal += totalPrice;
-    });
-
+    const subTotal = this.getSubTotal();
     const discountAmount = this.saleForm.get('discountAmount')?.value || 0;
-    const taxRate = 0.1; // 10% tax
-    const taxAmount = (subTotal - discountAmount) * taxRate;
-    const totalAmount = subTotal - discountAmount + taxAmount;
+    const taxAmount = this.getTaxAmount();
+    const totalAmount = this.getTotalAmount();
 
-    this.saleForm.patchValue({
-      subTotal: subTotal,
-      taxAmount: taxAmount,
-      totalAmount: totalAmount,
-    });
+    this.saleForm.patchValue(
+      {
+        subTotal: subTotal,
+        taxAmount: taxAmount,
+        totalAmount: totalAmount,
+      },
+      { emitEvent: false }
+    );
   }
 
   private loadData(): void {
-    // Mock data - replace with actual service calls
-    this.customers = [
-      {
-        id: 1,
-        name: 'John Doe',
-        email: 'john@example.com',
-        phone: '123-456-7890',
-        address: '123 Main St',
-        loyaltyPoints: 100,
-        creditBalance: 0,
-        isActive: true,
-        createdAt: new Date(),
+    // Load customers
+    this.customerService.getCustomers().subscribe({
+      next: (customers) => {
+        this.customers = customers;
       },
-    ];
-
-    this.products = [
-      {
-        id: 1,
-        name: 'Product A',
-        price: 10.99,
-        stockQuantity: 100,
-        sku: 'PA001',
-        barcode: '123456789',
-        costPrice: 5.99,
-        minStockLevel: 10,
-        categoryId: 1,
-        categoryName: 'Category A',
-        supplierId: 1,
-        supplierName: 'Supplier A',
-        isActive: true,
-        isLowStock: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+      error: (error) => {
+        this.notificationService.showError('Error loading customers');
+        console.error('Error loading customers:', error);
       },
-    ];
-  }
+    });
 
-  private setupCustomerFilter(): void {
-    this.filteredCustomers = this.saleForm.get('customerId')!.valueChanges.pipe(
-      startWith(''),
-      map((value) => this._filterCustomers(value))
-    );
+    // Load products
+    this.productService.getProducts().subscribe({
+      next: (products) => {
+        this.products = products;
+      },
+      error: (error) => {
+        this.notificationService.showError('Error loading products');
+        console.error('Error loading products:', error);
+      },
+    });
   }
 
   private _filterCustomers(value: string): Customer[] {

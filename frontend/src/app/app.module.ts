@@ -79,7 +79,6 @@ import { ReportsModule } from './features/reports/reports.module';
     MatBadgeModule,
     MatMenuModule,
     MatGridListModule,
-    AppComponent,
 
     // Chart.js
     NgChartsModule,
@@ -88,11 +87,12 @@ import { ReportsModule } from './features/reports/reports.module';
     AppRoutingModule,
     SharedModule,
     AuthModule,
-    DashboardModule,
+    // DashboardModule,
     ProductsModule,
     SalesModule,
-    CustomersModule,
+    // CustomersModule,
     ReportsModule,
+    AppComponent,
   ],
   providers: [
     {
@@ -106,6 +106,6 @@ import { ReportsModule } from './features/reports/reports.module';
       multi: true,
     },
   ],
-  bootstrap: [AppComponent],
+  bootstrap: [],
 })
 export class AppModule {}

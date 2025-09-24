@@ -18,6 +18,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 // Components
 import { SaleListComponent } from './sale-list/sale-list.component';
@@ -41,13 +42,13 @@ const routes = [
     component: SaleFormComponent,
   },
   {
-    path: 'invoice/:id',
+    path: ':id/invoice',
     component: InvoiceComponent,
   },
 ];
 
 @NgModule({
-  declarations: [],
+  declarations: [SaleListComponent, SaleFormComponent, InvoiceComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -70,9 +71,7 @@ const routes = [
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatChipsModule,
-    SaleListComponent,
-    SaleFormComponent,
-    InvoiceComponent,
+    MatAutocompleteModule,
   ],
 })
 export class SalesModule {}

@@ -56,12 +56,14 @@ export class ProductListComponent implements OnInit, AfterViewInit {
       error: (error) => {
         this.notificationService.showError('Error loading products');
         this.loading = false;
+        console.error('Error loading products:', error);
       },
     });
   }
 
   applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
+    const target = event.target as HTMLInputElement;
+    const filterValue = target.value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
 
     if (this.dataSource.paginator) {
@@ -98,8 +100,9 @@ export class ProductListComponent implements OnInit, AfterViewInit {
             );
             this.loadProducts();
           },
-          error: () => {
+          error: (error) => {
             this.notificationService.showError('Error deleting product');
+            console.error('Error deleting product:', error);
           },
         });
       }

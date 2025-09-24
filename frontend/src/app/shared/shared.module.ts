@@ -6,9 +6,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCardModule } from '@angular/material/card';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 // Shared Components
 import { LoadingComponent } from './components/loading/loading.component';
@@ -25,39 +25,39 @@ import { DateFormatPipe } from './pipes/date-format.pipe';
     FormsModule,
     ReactiveFormsModule,
 
-    // Angular Material
+    // Angular Material modules
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
-    MatSnackBarModule,
     MatProgressSpinnerModule,
-    MatTooltipModule,
+    MatCardModule,
+    MatGridListModule,
     LoadingComponent,
-    ConfirmationDialogComponent,
     CurrencyFormatPipe,
     DateFormatPipe,
+
+    // Import standalone component
+    ConfirmationDialogComponent,
   ],
   exports: [
-    // Modules
+    // Export what other modules need
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
 
-    // Angular Material
+    // Export commonly used Material modules
     MatButtonModule,
     MatIconModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
+    MatCardModule,
+    MatGridListModule,
 
-    // Components
+    // Export our custom components and pipes
     LoadingComponent,
-    ConfirmationDialogComponent,
-
-    // Pipes
     CurrencyFormatPipe,
     DateFormatPipe,
+
+    // Import and re-export standalone component
+    ConfirmationDialogComponent,
   ],
 })
 export class SharedModule {}

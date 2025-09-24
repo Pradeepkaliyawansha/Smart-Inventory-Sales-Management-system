@@ -43,7 +43,7 @@ const routes = [
 ];
 
 @NgModule({
-  declarations: [],
+  declarations: [SalesReportComponent, InventoryReportComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -67,8 +67,6 @@ const routes = [
     MatSnackBarModule,
     MatProgressBarModule,
     MatChipsModule,
-    SalesReportComponent,
-    InventoryReportComponent,
 
     // Chart.js
     NgChartsModule,

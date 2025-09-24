@@ -27,7 +27,7 @@
         <div class="metric-value">{{ summary?.totalProducts || 0 }}</div>
         <div class="metric-subtext" *ngIf="summary?.lowStockProductsCount">
           <mat-icon class="warning-icon">warning</mat-icon>
-          {{ summary.lowStockProductsCount }} low stock
+          {{ summary?.lowStockProductsCount }} low stock
         </div>
       </mat-card-content>
     </mat-card>

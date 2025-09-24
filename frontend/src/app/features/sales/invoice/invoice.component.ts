@@ -12,6 +12,8 @@ import { Sale, PaymentMethod } from '../../../core/models/sale.model';
 export class InvoiceComponent implements OnInit {
   sale: Sale | null = null;
   loading = true;
+  currentDate: Date = new Date();
+  dueDate: Date = new Date();
 
   constructor(
     private route: ActivatedRoute,
@@ -60,5 +62,23 @@ export class InvoiceComponent implements OnInit {
       [PaymentMethod.Credit]: 'Credit',
     };
     return names[method] || 'Unknown';
+  }
+
+  downloadInvoice(): void {
+    // Simple approach: export the HTML content as PDF using browser print dialog
+    // For production, better use libraries like jspdf or pdfmake
+    const content = document.querySelector('.invoice-container')?.innerHTML;
+    if (content) {
+      const newWindow = window.open('', '', 'width=800,height=600');
+      if (newWindow) {
+        newWindow.document.write(
+          '<html><head><title>Invoice</title></head><body>'
+        );
+        newWindow.document.write(content);
+        newWindow.document.write('</body></html>');
+        newWindow.document.close();
+        newWindow.print();
+      }
+    }
   }
 }

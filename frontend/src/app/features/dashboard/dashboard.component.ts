@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { ChartData, ChartOptions, ChartType } from 'chart.js';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChartData, ChartOptions } from 'chart.js';
 import { DashboardService } from './dashboard.service';
+import { Subject, forkJoin } from 'rxjs';
+import { takeUntil, finalize } from 'rxjs/operators';
 
 interface DashboardSummary {
   totalSalesAmount: number;
@@ -16,6 +18,10 @@ interface DashboardSummary {
 interface ChartDataPoint {
   label: string;
   value: number;
+}
+
+interface SalesChartResponse {
+  dailySales: ChartDataPoint[];
 }
 
 interface TopProduct {
@@ -46,12 +52,27 @@ interface LowStockAlert {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
   loading = true;
   summary: DashboardSummary | null = null;
   topProducts: TopProduct[] = [];
   recentSales: RecentSale[] = [];
   lowStockAlerts: LowStockAlert[] = [];
+
+  // Table column definitions
+  displayedSalesColumns: string[] = [
+    'invoiceNumber',
+    'customerName',
+    'totalAmount',
+    'saleDate',
+  ];
+  displayedStockColumns: string[] = [
+    'productName',
+    'currentStock',
+    'minStockLevel',
+  ];
 
   // Chart configurations
   salesChartData: ChartData<'line'> = {
@@ -86,6 +107,7 @@ export class DashboardComponent implements OnInit {
           display: true,
           text: 'Sales Amount ($)',
         },
+        beginAtZero: true,
       },
     },
   };
@@ -116,35 +138,49 @@ export class DashboardComponent implements OnInit {
     this.loadDashboardData();
   }
 
-  async loadDashboardData(): Promise<void> {
-    try {
-      this.loading = true;
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
-      // Load all dashboard data concurrently
-      const [summary, salesChart, topProducts, recentSales, lowStockAlerts] =
-        await Promise.all([
-          this.dashboardService.getDashboardSummary().toPromise(),
-          this.dashboardService.getSalesChartData(30).toPromise(),
-          this.dashboardService.getTopProducts(5).toPromise(),
-          this.dashboardService.getRecentSales(10).toPromise(),
-          this.dashboardService.getLowStockAlerts().toPromise(),
-        ]);
+  loadDashboardData(): void {
+    this.loading = true;
 
-      this.summary = summary!;
-      this.topProducts = topProducts!;
-      this.recentSales = recentSales!;
-      this.lowStockAlerts = lowStockAlerts!;
+    // Use forkJoin instead of Promise.all for better RxJS integration
+    forkJoin({
+      summary: this.dashboardService.getDashboardSummary(),
+      salesChart: this.dashboardService.getSalesChartData(30),
+      topProducts: this.dashboardService.getTopProducts(5),
+      recentSales: this.dashboardService.getRecentSales(10),
+      lowStockAlerts: this.dashboardService.getLowStockAlerts(),
+    })
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.loading = false))
+      )
+      .subscribe({
+        next: (data) => {
+          this.summary = data.summary;
+          this.topProducts = data.topProducts;
+          this.recentSales = data.recentSales;
+          this.lowStockAlerts = data.lowStockAlerts;
 
-      this.setupSalesChart(salesChart!.dailySales);
-      this.setupTopProductsChart(topProducts!);
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
-    } finally {
-      this.loading = false;
-    }
+          this.setupSalesChart(data.salesChart.dailySales);
+          this.setupTopProductsChart(data.topProducts);
+        },
+        error: (error) => {
+          console.error('Error loading dashboard data:', error);
+          // You might want to show a user-friendly error message here
+        },
+      });
   }
 
   private setupSalesChart(salesData: ChartDataPoint[]): void {
+    if (!salesData || salesData.length === 0) {
+      console.warn('No sales data available for chart');
+      return;
+    }
+
     this.salesChartData = {
       labels: salesData.map((item) => item.label),
       datasets: [
@@ -155,12 +191,20 @@ export class DashboardComponent implements OnInit {
           backgroundColor: 'rgba(63, 81, 181, 0.1)',
           fill: true,
           tension: 0.4,
+          pointBackgroundColor: '#3f51b5',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
         },
       ],
     };
   }
 
   private setupTopProductsChart(products: TopProduct[]): void {
+    if (!products || products.length === 0) {
+      console.warn('No products data available for chart');
+      return;
+    }
+
     const colors = ['#3f51b5', '#e91e63', '#4caf50', '#ff9800', '#9c27b0'];
 
     this.topProductsChartData = {
@@ -171,23 +215,41 @@ export class DashboardComponent implements OnInit {
           backgroundColor: colors.slice(0, products.length),
           borderWidth: 2,
           borderColor: '#fff',
+          hoverBackgroundColor: colors
+            .slice(0, products.length)
+            .map((color) => color + 'CC'),
         },
       ],
     };
   }
 
-  formatCurrency(value: number): string {
+  formatCurrency(value: number | null | undefined): string {
+    if (value == null) return '$0.00';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
     }).format(value);
   }
 
-  formatDate(date: Date | string): string {
-    return new Date(date).toLocaleDateString();
+  formatDate(date: Date | string | null | undefined): string {
+    if (!date) return 'N/A';
+
+    try {
+      return new Date(date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid Date';
+    }
   }
 
-  getStockStatusColor(currentStock: number, minStock: number): string {
+  getStockStatusColor(
+    currentStock: number,
+    minStock: number
+  ): 'primary' | 'accent' | 'warn' {
     if (currentStock === 0) return 'warn';
     if (currentStock <= minStock) return 'accent';
     return 'primary';
