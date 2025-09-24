@@ -19,7 +19,12 @@ import { CurrencyFormatPipe } from './pipes/currency-format.pipe';
 import { DateFormatPipe } from './pipes/date-format.pipe';
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    LoadingComponent,
+    ConfirmationDialogComponent,
+    CurrencyFormatPipe,
+    DateFormatPipe,
+  ],
   imports: [
     CommonModule,
     FormsModule,
@@ -32,12 +37,6 @@ import { DateFormatPipe } from './pipes/date-format.pipe';
     MatProgressSpinnerModule,
     MatCardModule,
     MatGridListModule,
-    LoadingComponent,
-    CurrencyFormatPipe,
-    DateFormatPipe,
-
-    // Import standalone component
-    ConfirmationDialogComponent,
   ],
   exports: [
     // Export what other modules need
