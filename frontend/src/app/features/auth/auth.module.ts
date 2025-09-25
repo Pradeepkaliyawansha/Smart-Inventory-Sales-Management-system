@@ -18,7 +18,7 @@ const routes = [
   {
     path: '',
     redirectTo: 'login',
-    pathMatch: 'full',
+    pathMatch: 'full' as 'full',
   },
   {
     path: 'login',
@@ -27,11 +27,12 @@ const routes = [
 ];
 
 @NgModule({
-  declarations: [LoginComponent],
+  declarations: [], // Remove LoginComponent from declarations
   imports: [
     CommonModule,
     ReactiveFormsModule,
     RouterModule.forChild(routes),
+    LoginComponent, // Import the standalone component
 
     // Angular Material
     MatCardModule,

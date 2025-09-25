@@ -27,12 +27,8 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatGridListModule } from '@angular/material/grid-list';
 
-// Chart.js
-import { NgChartsModule } from 'ng2-charts';
-
 // App Components
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
 
 // Core
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
@@ -48,8 +44,9 @@ import { ProductsModule } from './features/products/products.module';
 import { SalesModule } from './features/sales/sales.module';
 import { CustomersModule } from './features/customers/customers.module';
 import { ReportsModule } from './features/reports/reports.module';
+
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -102,6 +99,5 @@ import { ReportsModule } from './features/reports/reports.module';
       multi: true,
     },
   ],
-  bootstrap: [AppComponent],
 })
 export class AppModule {}

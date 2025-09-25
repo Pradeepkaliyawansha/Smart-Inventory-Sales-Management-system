@@ -3,9 +3,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SaleService } from '../../../core/services/sale.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Sale, PaymentMethod } from '../../../core/models/sale.model';
+import { MatIconModule } from '@angular/material/icon';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
   selector: 'app-invoice',
+  standalone: true,
+  imports: [MatIconModule, SharedModule],
   templateUrl: './invoice.component.html',
   styleUrls: ['./invoice.component.scss'],
 })

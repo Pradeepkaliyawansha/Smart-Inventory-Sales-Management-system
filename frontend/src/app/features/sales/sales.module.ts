@@ -48,7 +48,7 @@ const routes = [
 ];
 
 @NgModule({
-  declarations: [SaleListComponent, SaleFormComponent, InvoiceComponent],
+  declarations: [],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -72,6 +72,10 @@ const routes = [
     MatTooltipModule,
     MatChipsModule,
     MatAutocompleteModule,
+
+    SaleListComponent,
+    SaleFormComponent,
+    InvoiceComponent,
   ],
 })
 export class SalesModule {}

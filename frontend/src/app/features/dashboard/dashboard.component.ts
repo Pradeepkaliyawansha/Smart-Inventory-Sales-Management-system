@@ -4,6 +4,17 @@ import { DashboardService } from './dashboard.service';
 import { Subject, forkJoin } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 
+// Angular Material
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTableModule } from '@angular/material/table';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
+// Chart.js
+import { BaseChartDirective } from 'ng2-charts';
+import { MatCardModule } from '@angular/material/card';
 interface DashboardSummary {
   totalSalesAmount: number;
   totalSalesAmountToday: number;
@@ -49,6 +60,19 @@ interface LowStockAlert {
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
+  imports: [
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTableModule,
+    MatChipsModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
+
+    // Chart.js
+    BaseChartDirective,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })

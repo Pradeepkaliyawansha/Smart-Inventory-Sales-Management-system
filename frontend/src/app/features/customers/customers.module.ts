@@ -41,7 +41,7 @@ const routes = [
 ];
 
 @NgModule({
-  declarations: [CustomerListComponent, CustomerFormComponent],
+  declarations: [],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -63,6 +63,8 @@ const routes = [
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
+    CustomerListComponent,
+    CustomerFormComponent,
   ],
 })
 export class CustomersModule {}
