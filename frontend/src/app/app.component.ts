@@ -31,6 +31,8 @@ export class AppComponent implements OnInit {
   currentUser: User | null = null;
   isMenuOpen = true;
 
+  private authToken: string | null = null;
+
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
@@ -45,6 +47,8 @@ export class AppComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+    this.authToken = null;
+    this.router.navigate(['/login']);
   }
 
   navigateToProfile(): void {
@@ -52,6 +56,6 @@ export class AppComponent implements OnInit {
   }
 
   get isLoggedIn(): boolean {
-    return this.authService.isLoggedIn();
+    return !!this.authService.getToken();
   }
 }
