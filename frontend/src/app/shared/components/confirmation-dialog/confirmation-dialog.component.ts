@@ -1,5 +1,11 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+  MatDialogModule,
+} from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 export interface ConfirmationData {
   title: string;
@@ -11,6 +17,8 @@ export interface ConfirmationData {
 
 @Component({
   selector: 'app-confirmation-dialog',
+  standalone: true,
+  imports: [MatDialogModule, MatButtonModule, MatIconModule],
   template: `
     <h1 mat-dialog-title>
       <mat-icon *ngIf="data.type" [class]="'dialog-icon ' + data.type">
@@ -41,18 +49,15 @@ export interface ConfirmationData {
       .dialog-icon {
         margin-right: 8px;
         vertical-align: middle;
-
-        &.warning {
-          color: #ff9800;
-        }
-
-        &.error {
-          color: #f44336;
-        }
-
-        &.info {
-          color: #2196f3;
-        }
+      }
+      .dialog-icon.warning {
+        color: #ff9800;
+      }
+      .dialog-icon.error {
+        color: #f44336;
+      }
+      .dialog-icon.info {
+        color: #2196f3;
       }
     `,
   ],

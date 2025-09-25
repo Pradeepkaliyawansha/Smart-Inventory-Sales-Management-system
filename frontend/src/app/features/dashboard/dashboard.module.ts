@@ -11,7 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Chart.js
-import { NgChartsModule } from 'ng2-charts';
+import { BaseChartDirective, NgChartsModule } from 'ng2-charts';
 
 // Components
 import { DashboardComponent } from './dashboard.component';
@@ -40,7 +40,7 @@ const routes = [
     MatTooltipModule,
 
     // Chart.js
-    NgChartsModule,
+    BaseChartDirective,
   ],
 })
 export class DashboardModule {}

@@ -27,7 +27,7 @@ const routes = [
 ];
 
 @NgModule({
-  declarations: [],
+  declarations: [LoginComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -40,7 +40,6 @@ const routes = [
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    LoginComponent,
   ],
 })
 export class AuthModule {}
