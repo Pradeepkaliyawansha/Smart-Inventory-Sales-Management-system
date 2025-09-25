@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
@@ -44,12 +43,12 @@ import { ProductsModule } from './features/products/products.module';
 import { SalesModule } from './features/sales/sales.module';
 import { CustomersModule } from './features/customers/customers.module';
 import { ReportsModule } from './features/reports/reports.module';
+import { AppComponent } from './app.component';
 
 @NgModule({
   declarations: [],
   imports: [
     BrowserModule,
-    BrowserAnimationsModule,
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
