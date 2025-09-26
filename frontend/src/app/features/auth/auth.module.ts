@@ -13,6 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // Components
 import { LoginComponent } from './login/login.component';
+import { RegisterComponent } from './register/register.component';
 
 const routes = [
   {
@@ -27,13 +28,13 @@ const routes = [
 ];
 
 @NgModule({
-  declarations: [], // Remove LoginComponent from declarations
+  declarations: [],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     RouterModule.forChild(routes),
-    LoginComponent, // Import the standalone component
-
+    LoginComponent,
+    RegisterComponent,
     // Angular Material
     MatCardModule,
     MatFormFieldModule,

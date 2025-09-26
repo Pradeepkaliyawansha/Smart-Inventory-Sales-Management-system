@@ -1,4 +1,5 @@
 <div class="login-container">
+  <div class="background-overlay"></div>
   <div class="login-card-container">
     <mat-card class="login-card">
       <mat-card-header class="login-header">
@@ -62,7 +63,6 @@
               {{ getErrorMessage("password") }}
             </mat-error>
           </mat-form-field>
-
           <button
             mat-raised-button
             color="primary"
@@ -70,26 +70,28 @@
             class="login-button full-width"
             [disabled]="loginForm.invalid || loading"
           >
-            <mat-spinner
-              *ngIf="loading"
-              diameter="20"
-              class="login-spinner"
-            ></mat-spinner>
-            <span *ngIf="!loading">Sign In</span>
-            <span *ngIf="loading">Signing In...</span>
+            <span class="button-content">
+              <mat-spinner
+                *ngIf="loading"
+                diameter="20"
+                class="login-spinner"
+              ></mat-spinner>
+              <span class="button-text">{{
+                loading ? "Signing In..." : "Sign In"
+              }}</span>
+            </span>
           </button>
         </form>
       </mat-card-content>
 
       <mat-card-actions class="login-actions">
-        <div class="demo-credentials">
-          <p><strong>Demo Credentials:</strong></p>
-          <p><code>Username: admin</code></p>
-          <p><code>Password: admin123</code></p>
+        <div class="register-link-container">
+          <p>
+            Don't have an account?
+            <a routerLink="/register" class="register-link">Register Here</a>
+          </p>
         </div>
       </mat-card-actions>
     </mat-card>
   </div>
-
-  <div class="background-overlay"></div>
 </div>
