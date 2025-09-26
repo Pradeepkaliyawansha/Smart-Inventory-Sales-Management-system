@@ -54,7 +54,7 @@
   margin-bottom: 32px;
 
   .register-avatar {
-    background: linear-gradient(135deg, #4caf50, #45a049);
+    background: linear-gradient(135deg, #3f51b5, #303f9f);
     color: white;
     width: 64px;
     height: 64px;
@@ -110,8 +110,9 @@
     font-weight: 500;
     margin-top: 16px;
     border-radius: 8px;
-    background: linear-gradient(135deg, #4caf50, #45a049);
+    background: linear-gradient(135deg, #3f51b5, #303f9f);
     position: relative;
+    color: white !important;
 
     .button-content {
       display: flex;
@@ -136,26 +137,31 @@
   }
 }
 
-.form-footer {
-  margin-top: 24px;
+.login-link-container {
   text-align: center;
-  padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
+  margin-top: 16px;
+  font-size: 0.9rem;
 
-  .login-link {
+  p {
     margin: 0;
-    color: #666;
-    font-size: 0.9rem;
+  }
+}
 
-    .link-button {
-      color: #4caf50;
-      font-weight: 500;
-      margin-left: 4px;
+.register-actions {
+  padding: 16px 0 0 0;
+  justify-content: center;
+}
 
-      &:hover {
-        background-color: rgba(76, 175, 80, 0.1);
-      }
-    }
+.login-link {
+  color: #3f51b5; /* Primary color */
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    color: #303f9f;
+    text-decoration: underline;
   }
 }
 

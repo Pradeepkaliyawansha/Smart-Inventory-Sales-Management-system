@@ -183,15 +183,14 @@
             </div>
           </button>
         </form>
-
-        <div class="form-footer">
-          <p class="login-link">
-            Already have an account?
-            <a mat-button routerLink="/auth/login" class="link-button">
-              Sign In
-            </a>
-          </p>
-        </div>
+        <mat-card-actions class="register-actions">
+          <div class="login-link-container">
+            <p>
+              Already have an account?
+              <a routerLink="/auth/login" class="login-link">Sign In</a>
+            </p>
+          </div>
+        </mat-card-actions>
       </mat-card-content>
     </mat-card>
   </div>

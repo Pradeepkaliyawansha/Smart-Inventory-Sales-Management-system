@@ -101,6 +101,11 @@
 
     .login-spinner {
       margin-right: 8px;
+      color: white;
+    }
+    &[disabled] {
+      opacity: 0.7;
+      cursor: not-allowed;
     }
   }
 }
