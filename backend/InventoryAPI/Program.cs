@@ -53,6 +53,8 @@ builder.Services.AddAutoMapper(typeof(Program));
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<ISaleService, SaleService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IReportService, ReportService>();
@@ -150,57 +152,3 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
-
-// AutoMapper Profile
-using AutoMapper;
-using InventoryAPI.Models.Entities;
-using InventoryAPI.Models.DTOs;
-
-public class MappingProfile : Profile
-{
-    public MappingProfile()
-    {
-        // User mappings
-        CreateMap<User, UserDto>();
-        CreateMap<RegisterDto, User>();
-        
-        // Product mappings
-        CreateMap<Product, ProductDto>()
-            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
-            .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier.Name))
-            .ForMember(dest => dest.IsLowStock, opt => opt.MapFrom(src => src.StockQuantity <= src.MinStockLevel));
-        CreateMap<CreateProductDto, Product>();
-        CreateMap<UpdateProductDto, Product>();
-        
-        // Category mappings
-        CreateMap<Category, CategoryDto>();
-        CreateMap<CreateCategoryDto, Category>();
-        CreateMap<UpdateCategoryDto, Category>();
-        
-        // Supplier mappings
-        CreateMap<Supplier, SupplierDto>();
-        CreateMap<CreateSupplierDto, Supplier>();
-        CreateMap<UpdateSupplierDto, Supplier>();
-        
-        // Sale mappings
-        CreateMap<Sale, SaleDto>()
-            .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.Name))
-            .ForMember(dest => dest.SalesPersonName, opt => opt.MapFrom(src => src.User.FullName));
-        CreateMap<CreateSaleDto, Sale>();
-        
-        // SaleItem mappings
-        CreateMap<SaleItem, SaleItemDto>()
-            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name));
-        CreateMap<CreateSaleItemDto, SaleItem>();
-        
-        // Customer mappings
-        CreateMap<Customer, CustomerDto>();
-        CreateMap<CreateCustomerDto, Customer>();
-        CreateMap<UpdateCustomerDto, Customer>();
-        
-        // StockMovement mappings
-        CreateMap<StockMovement, StockMovementDto>()
-            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
-            .ForMember(dest => dest.CreatedByName, opt => opt.MapFrom(src => src.CreatedByUser.FullName));
-    }
-}

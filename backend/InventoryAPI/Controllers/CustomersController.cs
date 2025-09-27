@@ -11,19 +11,19 @@ namespace InventoryAPI.Controllers
     public class CustomersController : ControllerBase
     {
         private readonly ICustomerService _customerService;
-        
+
         public CustomersController(ICustomerService customerService)
         {
             _customerService = customerService;
         }
-        
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomerDto>>> GetCustomers()
         {
             var customers = await _customerService.GetAllCustomersAsync();
             return Ok(customers);
         }
-        
+
         [HttpGet("{id}")]
         public async Task<ActionResult<CustomerDto>> GetCustomer(int id)
         {
@@ -37,7 +37,7 @@ namespace InventoryAPI.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
-        
+
         [HttpPost]
         public async Task<ActionResult<CustomerDto>> CreateCustomer(CreateCustomerDto createCustomerDto)
         {
@@ -51,7 +51,7 @@ namespace InventoryAPI.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        
+
         [HttpPut("{id}")]
         public async Task<ActionResult<CustomerDto>> UpdateCustomer(int id, UpdateCustomerDto updateCustomerDto)
         {
@@ -69,14 +69,14 @@ namespace InventoryAPI.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        
+
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
             var result = await _customerService.DeleteCustomerAsync(id);
             if (!result) return NotFound();
-            
+
             return NoContent();
         }
 
@@ -113,7 +113,7 @@ namespace InventoryAPI.Controllers
         {
             var result = await _customerService.UpdateLoyaltyPointsAsync(id, points);
             if (!result) return NotFound();
-            
+
             return Ok(new { success = true });
         }
 
@@ -122,7 +122,7 @@ namespace InventoryAPI.Controllers
         {
             var result = await _customerService.UpdateCreditBalanceAsync(id, amount);
             if (!result) return NotFound();
-            
+
             return Ok(new { success = true });
         }
 
@@ -132,7 +132,7 @@ namespace InventoryAPI.Controllers
             try
             {
                 CustomerDto customer;
-                
+
                 if (!string.IsNullOrEmpty(email))
                 {
                     customer = await _customerService.GetCustomerByEmailAsync(email);
@@ -145,8 +145,54 @@ namespace InventoryAPI.Controllers
                 {
                     return BadRequest(new { message = "Either email or phone must be provided" });
                 }
-                
+
                 return Ok(customer);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+        [HttpGet("{id}/loyalty-summary")]
+        public async Task<ActionResult> GetCustomerLoyaltySummary(int id)
+        {
+            try
+            {
+                var customer = await _customerService.GetCustomerByIdAsync(id);
+                return Ok(new 
+                { 
+                    customerId = customer.Id,
+                    customerName = customer.Name,
+                    loyaltyPoints = customer.LoyaltyPoints,
+                    creditBalance = customer.CreditBalance,
+                    totalSpent = customer.TotalSpent,
+                    totalPurchases = customer.TotalPurchases,
+                    lastPurchaseDate = customer.LastPurchaseDate
+                });
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{id}/redeem-points")]
+        public async Task<IActionResult> RedeemLoyaltyPoints(int id, [FromBody] decimal pointsToRedeem)
+        {
+            try
+            {
+                if (pointsToRedeem <= 0)
+                    return BadRequest(new { message = "Points to redeem must be greater than 0" });
+
+                var customer = await _customerService.GetCustomerByIdAsync(id);
+                
+                if (customer.LoyaltyPoints < pointsToRedeem)
+                    return BadRequest(new { message = "Insufficient loyalty points" });
+
+                var result = await _customerService.UpdateLoyaltyPointsAsync(id, -pointsToRedeem);
+                if (!result) return NotFound();
+                
+                return Ok(new { success = true, pointsRedeemed = pointsToRedeem });
             }
             catch (NotFoundException ex)
             {
