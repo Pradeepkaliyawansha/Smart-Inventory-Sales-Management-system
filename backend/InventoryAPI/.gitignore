@@ -1,0 +1,70 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+.history/
+
+# NuGet packages
+*.nupkg
+*.snupkg
+*.nuspec
+*.nuget.props
+*.nuget.targets
+packages/
+*.lock.json
+project.lock.json
+
+# Dependency caches
+artifacts/
+.nuget/
+node_modules/
+
+# Configuration
+appsettings.*.json
+secrets.json
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Resharper
+_ReSharper*/
+*.DotSettings.user
+
+# Rider
+.idea/
+*.iml
+
+# Test results
+TestResult*/
+*.trx
+*.coverage
+*.coveragexml
+
+# Publish output
+publish/
+out/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# JetBrains Rider / .NET tools
+*.dotCover
+*.dotTrace
+*.dotMemory
