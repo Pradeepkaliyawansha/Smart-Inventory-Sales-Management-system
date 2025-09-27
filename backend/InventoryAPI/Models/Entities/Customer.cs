@@ -29,3 +29,4 @@ namespace InventoryAPI.Models.Entities
         public ICollection<Sale> Sales { get; set; } = new List<Sale>();
     }
 }
+
