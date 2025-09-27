@@ -57,4 +57,101 @@ namespace InventoryAPI.Controllers
         {
             try
             {
-                var
+                var customer = await _customerService.UpdateCustomerAsync(id, updateCustomerDto);
+                return Ok(customer);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+        
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> DeleteCustomer(int id)
+        {
+            var result = await _customerService.DeleteCustomerAsync(id);
+            if (!result) return NotFound();
+            
+            return NoContent();
+        }
+
+        [HttpGet("{id}/purchase-history")]
+        public async Task<ActionResult<CustomerPurchaseHistoryDto>> GetCustomerPurchaseHistory(int id)
+        {
+            try
+            {
+                var history = await _customerService.GetCustomerPurchaseHistoryAsync(id);
+                return Ok(history);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("top")]
+        public async Task<ActionResult<IEnumerable<CustomerDto>>> GetTopCustomers([FromQuery] int count = 10)
+        {
+            var topCustomers = await _customerService.GetTopCustomersAsync(count);
+            return Ok(topCustomers);
+        }
+
+        [HttpGet("with-credit")]
+        public async Task<ActionResult<IEnumerable<CustomerDto>>> GetCustomersWithCredit()
+        {
+            var customers = await _customerService.GetCustomersWithCreditBalanceAsync();
+            return Ok(customers);
+        }
+
+        [HttpPost("{id}/loyalty-points")]
+        public async Task<IActionResult> UpdateLoyaltyPoints(int id, [FromBody] decimal points)
+        {
+            var result = await _customerService.UpdateLoyaltyPointsAsync(id, points);
+            if (!result) return NotFound();
+            
+            return Ok(new { success = true });
+        }
+
+        [HttpPost("{id}/credit-balance")]
+        public async Task<IActionResult> UpdateCreditBalance(int id, [FromBody] decimal amount)
+        {
+            var result = await _customerService.UpdateCreditBalanceAsync(id, amount);
+            if (!result) return NotFound();
+            
+            return Ok(new { success = true });
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<CustomerDto>> SearchCustomer([FromQuery] string? email, [FromQuery] string? phone)
+        {
+            try
+            {
+                CustomerDto customer;
+                
+                if (!string.IsNullOrEmpty(email))
+                {
+                    customer = await _customerService.GetCustomerByEmailAsync(email);
+                }
+                else if (!string.IsNullOrEmpty(phone))
+                {
+                    customer = await _customerService.GetCustomerByPhoneAsync(phone);
+                }
+                else
+                {
+                    return BadRequest(new { message = "Either email or phone must be provided" });
+                }
+                
+                return Ok(customer);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+    }
+}
