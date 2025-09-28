@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace InventoryAPI.Models.Entities
 {
     public class SaleItem

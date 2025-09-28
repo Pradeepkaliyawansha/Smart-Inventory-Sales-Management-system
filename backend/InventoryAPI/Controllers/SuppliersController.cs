@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
 using InventoryAPI.Models.DTOs;
 using InventoryAPI.Services.Interfaces;
+using InventoryAPI.Exceptions;
 
 namespace InventoryAPI.Controllers
 {
@@ -426,17 +428,17 @@ namespace InventoryAPI.Controllers
     }
 }
 
-// Additional DTO for bulk operations
-namespace InventoryAPI.Models.DTOs
-{
-    public class BulkSupplierStatusUpdateDto
-    {
-        [Required]
-        public List<int> SupplierIds { get; set; } = new List<int>();
+// // Additional DTO for bulk operations
+// namespace InventoryAPI.Models.DTOs
+// {
+//     public class BulkSupplierStatusUpdateDto
+//     {
+//         [Required]
+//         public List<int> SupplierIds { get; set; } = new List<int>();
         
-        [Required]
-        public bool IsActive { get; set; }
+//         [Required]
+//         public bool IsActive { get; set; }
         
-        public string Reason { get; set; } = "";
-    }
-}
+//         public string Reason { get; set; } = "";
+//     }
+// }

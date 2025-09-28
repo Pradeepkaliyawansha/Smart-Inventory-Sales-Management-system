@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
 using InventoryAPI.Models.DTOs;
 using InventoryAPI.Services.Interfaces;
+using InventoryAPI.Exceptions;
 
 namespace InventoryAPI.Controllers
 {
@@ -13,7 +15,7 @@ namespace InventoryAPI.Controllers
         private readonly ICategoryService _categoryService;
         private readonly IProductService _productService;
         private readonly ILogger<CategoriesController> _logger;
-        
+
         public CategoriesController(
             ICategoryService categoryService,
             IProductService productService,
@@ -23,7 +25,7 @@ namespace InventoryAPI.Controllers
             _productService = productService;
             _logger = logger;
         }
-        
+
         /// <summary>
         /// Get all categories
         /// </summary>
@@ -42,7 +44,7 @@ namespace InventoryAPI.Controllers
                 return StatusCode(500, new { message = "Internal server error occurred" });
             }
         }
-        
+
         /// <summary>
         /// Get category by ID
         /// </summary>
@@ -65,7 +67,7 @@ namespace InventoryAPI.Controllers
                 return StatusCode(500, new { message = "Internal server error occurred" });
             }
         }
-        
+
         /// <summary>
         /// Create new category (Admin/Manager only)
         /// </summary>
@@ -79,9 +81,9 @@ namespace InventoryAPI.Controllers
                     return BadRequest(ModelState);
 
                 var category = await _categoryService.CreateCategoryAsync(createCategoryDto);
-                _logger.LogInformation("Created new category: {CategoryName} with ID {CategoryId}", 
+                _logger.LogInformation("Created new category: {CategoryName} with ID {CategoryId}",
                     category.Name, category.Id);
-                
+
                 return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, category);
             }
             catch (ArgumentException ex)
@@ -95,7 +97,7 @@ namespace InventoryAPI.Controllers
                 return StatusCode(500, new { message = "Internal server error occurred" });
             }
         }
-        
+
         /// <summary>
         /// Update category (Admin/Manager only)
         /// </summary>
@@ -110,7 +112,7 @@ namespace InventoryAPI.Controllers
 
                 var category = await _categoryService.UpdateCategoryAsync(id, updateCategoryDto);
                 _logger.LogInformation("Updated category with ID {CategoryId}", id);
-                
+
                 return Ok(category);
             }
             catch (NotFoundException ex)
@@ -129,7 +131,7 @@ namespace InventoryAPI.Controllers
                 return StatusCode(500, new { message = "Internal server error occurred" });
             }
         }
-        
+
         /// <summary>
         /// Delete category (Admin only)
         /// </summary>
@@ -140,12 +142,12 @@ namespace InventoryAPI.Controllers
             try
             {
                 var result = await _categoryService.DeleteCategoryAsync(id);
-                if (!result) 
+                if (!result)
                 {
                     _logger.LogWarning("Category with ID {CategoryId} not found for deletion", id);
                     return NotFound(new { message = "Category not found" });
                 }
-                
+
                 _logger.LogInformation("Deleted category with ID {CategoryId}", id);
                 return NoContent();
             }
@@ -171,11 +173,11 @@ namespace InventoryAPI.Controllers
             {
                 // First verify category exists
                 await _categoryService.GetCategoryByIdAsync(id);
-                
+
                 var products = await _productService.GetProductsByCategoryAsync(id);
-                _logger.LogInformation("Retrieved {Count} products for category {CategoryId}", 
+                _logger.LogInformation("Retrieved {Count} products for category {CategoryId}",
                     products.Count(), id);
-                
+
                 return Ok(products);
             }
             catch (NotFoundException ex)
@@ -200,7 +202,7 @@ namespace InventoryAPI.Controllers
             {
                 var categories = await _categoryService.GetAllCategoriesAsync();
                 var activeCategories = categories.Where(c => c.IsActive);
-                
+
                 _logger.LogInformation("Retrieved {Count} active categories", activeCategories.Count());
                 return Ok(activeCategories);
             }
@@ -226,10 +228,10 @@ namespace InventoryAPI.Controllers
                     return BadRequest(new { message = "Search term must be at least 2 characters long" });
 
                 var categories = await _categoryService.GetAllCategoriesAsync();
-                var filtered = categories.Where(c => 
+                var filtered = categories.Where(c =>
                     c.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                     (!string.IsNullOrEmpty(c.Description) && c.Description.Contains(term, StringComparison.OrdinalIgnoreCase)));
-                
+
                 _logger.LogInformation("Search for '{SearchTerm}' returned {Count} categories", term, filtered.Count());
                 return Ok(filtered);
             }
@@ -272,10 +274,11 @@ namespace InventoryAPI.Controllers
                         max = productsList.Max(p => p.Price)
                     } : null,
                     topSuppliers = productsList.GroupBy(p => new { p.SupplierId, p.SupplierName })
-                        .Select(g => new { 
+                        .Select(g => new
+                        {
                             supplierId = g.Key.SupplierId,
-                            supplierName = g.Key.SupplierName, 
-                            productCount = g.Count() 
+                            supplierName = g.Key.SupplierName,
+                            productCount = g.Count()
                         })
                         .OrderByDescending(s => s.productCount)
                         .Take(5),
@@ -356,7 +359,7 @@ namespace InventoryAPI.Controllers
             {
                 var category = await _categoryService.GetCategoryByIdAsync(id);
                 var products = await _productService.GetProductsByCategoryAsync(id);
-                
+
                 // Set default date range if not provided
                 fromDate ??= DateTime.UtcNow.AddDays(-30);
                 toDate ??= DateTime.UtcNow;
@@ -364,7 +367,7 @@ namespace InventoryAPI.Controllers
                 // This would require integration with sales service for actual sales data
                 // For now, we'll provide inventory-based performance metrics
                 var productsList = products.ToList();
-                
+
                 var performance = new
                 {
                     categoryId = id,
@@ -522,11 +525,12 @@ namespace InventoryAPI.Controllers
                     }
                 }
 
-                _logger.LogInformation("Bulk updated {Count} categories status to {Status}", 
+                _logger.LogInformation("Bulk updated {Count} categories status to {Status}",
                     bulkUpdate.CategoryIds.Count, bulkUpdate.IsActive);
 
-                return Ok(new { 
-                    results, 
+                return Ok(new
+                {
+                    results,
                     totalProcessed = bulkUpdate.CategoryIds.Count,
                     successful = results.Count(r => ((dynamic)r).success == true),
                     failed = results.Count(r => ((dynamic)r).success == false)
@@ -546,10 +550,10 @@ namespace InventoryAPI.Controllers
             // Simplified stock turnover calculation
             // In a real scenario, this would use sales data
             if (!products.Any()) return 0;
-            
+
             var totalCostOfGoods = products.Sum(p => p.StockQuantity * p.CostPrice);
             var averageInventory = totalCostOfGoods / products.Count;
-            
+
             return averageInventory > 0 ? totalCostOfGoods / averageInventory : 0;
         }
 
@@ -557,7 +561,7 @@ namespace InventoryAPI.Controllers
         {
             // Stock utilization as percentage of products above minimum stock level
             if (!products.Any()) return 0;
-            
+
             var productsAboveMinStock = products.Count(p => p.StockQuantity > p.MinStockLevel);
             return (decimal)productsAboveMinStock / products.Count * 100;
         }
@@ -566,17 +570,17 @@ namespace InventoryAPI.Controllers
     }
 }
 
-// Additional DTO for bulk operations
-namespace InventoryAPI.Models.DTOs
-{
-    public class BulkCategoryStatusUpdateDto
-    {
-        [Required]
-        public List<int> CategoryIds { get; set; } = new List<int>();
+// // Additional DTO for bulk operations
+// namespace InventoryAPI.Models.DTOs
+// {
+//     public class BulkCategoryStatusUpdateDto
+//     {
+//         [Required]
+//         public List<int> CategoryIds { get; set; } = new List<int>();
         
-        [Required]
-        public bool IsActive { get; set; }
+//         [Required]
+//         public bool IsActive { get; set; }
         
-        public string Reason { get; set; } = "";
-    }
-}
+//         public string Reason { get; set; } = "";
+//     }
+// }

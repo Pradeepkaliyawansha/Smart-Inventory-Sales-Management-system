@@ -1,100 +1,105 @@
-using iTextSharp.text;
-using iTextSharp.text.pdf;
-using InventoryAPI.Models.DTOs;
+using System.IO;
+using System.Linq;
 using System.Text;
+using InventoryAPI.Models.DTOs;
+using iText.Kernel.Colors;
+using iText.Kernel.Font;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Layout.Properties;
 
 namespace InventoryAPI.Helpers
 {
     public class PdfGenerator
     {
+        private PdfFont GetFont(string fontName = "Helvetica", bool bold = false, int size = 10)
+        {
+            var font = PdfFontFactory.CreateFont(iText.IO.Font.Constants.StandardFonts.HELVETICA);
+            return font;
+        }
+
         public byte[] GenerateInvoicePdf(InvoiceDto invoice)
         {
             using var memoryStream = new MemoryStream();
-            var document = new Document(PageSize.A4, 25, 25, 30, 30);
-            var writer = PdfWriter.GetInstance(document, memoryStream);
-            
-            document.Open();
+            using var writer = new PdfWriter(memoryStream);
+            using var pdf = new PdfDocument(writer);
+            var document = new Document(pdf, iText.Kernel.Geom.PageSize.A4);
+            document.SetMargins(30, 25, 30, 25);
 
-            // Company Header
-            var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.BLACK);
-            var headerFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLACK);
-            var normalFont = FontFactory.GetFont(FontFactory.HELVETICA, 10, BaseColor.BLACK);
+            // Fonts
+            var titleFont = PdfFontFactory.CreateFont(iText.IO.Font.Constants.StandardFonts.HELVETICA_BOLD);
+            var normalFont = PdfFontFactory.CreateFont(iText.IO.Font.Constants.StandardFonts.HELVETICA);
 
-            var title = new Paragraph("INVENTORY MANAGEMENT SYSTEM", titleFont)
-            {
-                Alignment = Element.ALIGN_CENTER,
-                SpacingAfter = 10f
-            };
-            document.Add(title);
+            // Title
+            document.Add(new Paragraph("INVENTORY MANAGEMENT SYSTEM")
+                .SetFont(titleFont)
+                .SetFontSize(18)
+                .SetFontColor(ColorConstants.BLACK)
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetMarginBottom(10));
 
-            var invoiceTitle = new Paragraph($"INVOICE: {invoice.InvoiceNumber}", headerFont)
-            {
-                Alignment = Element.ALIGN_CENTER,
-                SpacingAfter = 20f
-            };
-            document.Add(invoiceTitle);
+            document.Add(new Paragraph($"INVOICE: {invoice.InvoiceNumber}")
+                .SetFont(titleFont)
+                .SetFontSize(12)
+                .SetFontColor(ColorConstants.BLACK)
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetMarginBottom(20));
 
-            // Invoice Details Table
-            var detailsTable = new PdfPTable(2) { WidthPercentage = 100 };
-            detailsTable.SetWidths(new float[] { 1f, 1f });
+            // Customer + Invoice details table
+            var detailsTable = new Table(UnitValue.CreatePercentArray(new float[] { 1, 1 })).UseAllAvailableWidth();
 
-            // Left side - Customer Details
-            var customerCell = new PdfPCell();
-            customerCell.Border = Rectangle.NO_BORDER;
-            customerCell.AddElement(new Paragraph("BILL TO:", headerFont));
-            customerCell.AddElement(new Paragraph($"Customer: {invoice.Customer?.Name ?? "N/A"}", normalFont));
-            customerCell.AddElement(new Paragraph($"Email: {invoice.Customer?.Email ?? "N/A"}", normalFont));
-            customerCell.AddElement(new Paragraph($"Phone: {invoice.Customer?.Phone ?? "N/A"}", normalFont));
-            customerCell.AddElement(new Paragraph($"Address: {invoice.Customer?.Address ?? "N/A"}", normalFont));
+            var customerCell = new Cell().SetBorder(Border.NO_BORDER);
+            customerCell.Add(new Paragraph("BILL TO:").SetFont(titleFont).SetFontSize(12));
+            customerCell.Add(new Paragraph($"Customer: {invoice.Customer?.Name ?? "N/A"}").SetFont(normalFont).SetFontSize(10));
+            customerCell.Add(new Paragraph($"Email: {invoice.Customer?.Email ?? "N/A"}").SetFont(normalFont).SetFontSize(10));
+            customerCell.Add(new Paragraph($"Phone: {invoice.Customer?.Phone ?? "N/A"}").SetFont(normalFont).SetFontSize(10));
+            customerCell.Add(new Paragraph($"Address: {invoice.Customer?.Address ?? "N/A"}").SetFont(normalFont).SetFontSize(10));
 
-            // Right side - Invoice Details
-            var invoiceCell = new PdfPCell();
-            invoiceCell.Border = Rectangle.NO_BORDER;
-            invoiceCell.AddElement(new Paragraph("INVOICE DETAILS:", headerFont));
-            invoiceCell.AddElement(new Paragraph($"Date: {invoice.SaleDate:dd/MM/yyyy}", normalFont));
-            invoiceCell.AddElement(new Paragraph($"Sales Person: {invoice.SalesPerson?.FullName ?? "N/A"}", normalFont));
-            invoiceCell.AddElement(new Paragraph($"Payment Method: {invoice.PaymentMethod}", normalFont));
+            var invoiceCell = new Cell().SetBorder(Border.NO_BORDER);
+            invoiceCell.Add(new Paragraph("INVOICE DETAILS:").SetFont(titleFont).SetFontSize(12));
+            invoiceCell.Add(new Paragraph($"Date: {invoice.SaleDate:dd/MM/yyyy}").SetFont(normalFont).SetFontSize(10));
+            invoiceCell.Add(new Paragraph($"Sales Person: {invoice.SalesPerson?.FullName ?? "N/A"}").SetFont(normalFont).SetFontSize(10));
+            invoiceCell.Add(new Paragraph($"Payment Method: {invoice.PaymentMethod}").SetFont(normalFont).SetFontSize(10));
 
             detailsTable.AddCell(customerCell);
             detailsTable.AddCell(invoiceCell);
-            detailsTable.SpacingAfter = 20f;
-            document.Add(detailsTable);
+
+            document.Add(detailsTable.SetMarginBottom(20));
 
             // Items Table
-            var itemsTable = new PdfPTable(5) { WidthPercentage = 100 };
-            itemsTable.SetWidths(new float[] { 3f, 1f, 1.5f, 1f, 1.5f });
+            var itemsTable = new Table(UnitValue.CreatePercentArray(new float[] { 3, 1, 1.5f, 1, 1.5f })).UseAllAvailableWidth();
 
-            // Table Headers
-            var headerCells = new string[] { "Product", "Qty", "Unit Price", "Discount", "Total" };
-            foreach (var header in headerCells)
+            string[] headers = { "Product", "Qty", "Unit Price", "Discount", "Total" };
+            foreach (var h in headers)
             {
-                var cell = new PdfPCell(new Phrase(header, headerFont))
-                {
-                    BackgroundColor = BaseColor.LIGHT_GRAY,
-                    HorizontalAlignment = Element.ALIGN_CENTER,
-                    Padding = 5
-                };
-                itemsTable.AddCell(cell);
+                itemsTable.AddHeaderCell(new Cell().Add(new Paragraph(h).SetFont(titleFont).SetFontSize(10))
+                    .SetBackgroundColor(ColorConstants.LIGHT_GRAY)
+                    .SetTextAlignment(TextAlignment.CENTER)
+                    .SetPadding(5));
             }
 
-            // Table Rows
             foreach (var item in invoice.SaleItems)
             {
-                itemsTable.AddCell(new PdfPCell(new Phrase(item.ProductName, normalFont)) { Padding = 5 });
-                itemsTable.AddCell(new PdfPCell(new Phrase(item.Quantity.ToString(), normalFont)) { HorizontalAlignment = Element.ALIGN_CENTER, Padding = 5 });
-                itemsTable.AddCell(new PdfPCell(new Phrase($"${item.UnitPrice:F2}", normalFont)) { HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 5 });
-                itemsTable.AddCell(new PdfPCell(new Phrase($"{item.DiscountPercentage}%", normalFont)) { HorizontalAlignment = Element.ALIGN_CENTER, Padding = 5 });
-                itemsTable.AddCell(new PdfPCell(new Phrase($"${item.TotalPrice:F2}", normalFont)) { HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 5 });
+                itemsTable.AddCell(new Cell().Add(new Paragraph(item.ProductName).SetFont(normalFont).SetFontSize(10)).SetPadding(5));
+                itemsTable.AddCell(new Cell().Add(new Paragraph(item.Quantity.ToString()).SetFont(normalFont).SetFontSize(10))
+                    .SetTextAlignment(TextAlignment.CENTER).SetPadding(5));
+                itemsTable.AddCell(new Cell().Add(new Paragraph($"${item.UnitPrice:F2}").SetFont(normalFont).SetFontSize(10))
+                    .SetTextAlignment(TextAlignment.RIGHT).SetPadding(5));
+                itemsTable.AddCell(new Cell().Add(new Paragraph($"{item.DiscountPercentage}%").SetFont(normalFont).SetFontSize(10))
+                    .SetTextAlignment(TextAlignment.CENTER).SetPadding(5));
+                itemsTable.AddCell(new Cell().Add(new Paragraph($"${item.TotalPrice:F2}").SetFont(normalFont).SetFontSize(10))
+                    .SetTextAlignment(TextAlignment.RIGHT).SetPadding(5));
             }
 
-            itemsTable.SpacingAfter = 20f;
-            document.Add(itemsTable);
+            document.Add(itemsTable.SetMarginBottom(20));
 
             // Totals Table
-            var totalsTable = new PdfPTable(2) { WidthPercentage = 50, HorizontalAlignment = Element.ALIGN_RIGHT };
-            totalsTable.SetWidths(new float[] { 2f, 1f });
+            var totalsTable = new Table(UnitValue.CreatePercentArray(new float[] { 2, 1 }))
+                .SetWidth(UnitValue.CreatePercentValue(50))
+                .SetHorizontalAlignment(HorizontalAlignment.RIGHT);
 
-            var totalRows = new (string label, decimal amount)[]
+            var totals = new (string label, decimal amount)[]
             {
                 ("Subtotal:", invoice.SubTotal),
                 ("Discount:", -invoice.DiscountAmount),
@@ -104,26 +109,24 @@ namespace InventoryAPI.Helpers
                 ("Balance:", invoice.TotalAmount - invoice.PaidAmount)
             };
 
-            foreach (var (label, amount) in totalRows)
+            foreach (var (label, amount) in totals)
             {
-                var labelCell = new PdfPCell(new Phrase(label, label == "Total:" ? headerFont : normalFont))
-                {
-                    Border = Rectangle.NO_BORDER,
-                    HorizontalAlignment = Element.ALIGN_RIGHT,
-                    Padding = 3
-                };
+                var labelCell = new Cell().Add(new Paragraph(label)
+                    .SetFont(label == "Total:" ? titleFont : normalFont)
+                    .SetFontSize(10))
+                    .SetBorder(Border.NO_BORDER)
+                    .SetTextAlignment(TextAlignment.RIGHT);
 
-                var amountCell = new PdfPCell(new Phrase($"${amount:F2}", label == "Total:" ? headerFont : normalFont))
-                {
-                    Border = Rectangle.NO_BORDER,
-                    HorizontalAlignment = Element.ALIGN_RIGHT,
-                    Padding = 3
-                };
+                var amountCell = new Cell().Add(new Paragraph($"${amount:F2}")
+                    .SetFont(label == "Total:" ? titleFont : normalFont)
+                    .SetFontSize(10))
+                    .SetBorder(Border.NO_BORDER)
+                    .SetTextAlignment(TextAlignment.RIGHT);
 
                 if (label == "Total:")
                 {
-                    labelCell.BackgroundColor = BaseColor.LIGHT_GRAY;
-                    amountCell.BackgroundColor = BaseColor.LIGHT_GRAY;
+                    labelCell.SetBackgroundColor(ColorConstants.LIGHT_GRAY);
+                    amountCell.SetBackgroundColor(ColorConstants.LIGHT_GRAY);
                 }
 
                 totalsTable.AddCell(labelCell);
@@ -135,163 +138,29 @@ namespace InventoryAPI.Helpers
             // Notes
             if (!string.IsNullOrEmpty(invoice.Notes))
             {
-                var notesTitle = new Paragraph("Notes:", headerFont) { SpacingBefore = 20f, SpacingAfter = 5f };
-                document.Add(notesTitle);
+                document.Add(new Paragraph("Notes:")
+                    .SetFont(titleFont)
+                    .SetFontSize(12)
+                    .SetMarginTop(20)
+                    .SetMarginBottom(5));
 
-                var notes = new Paragraph(invoice.Notes, normalFont);
-                document.Add(notes);
+                document.Add(new Paragraph(invoice.Notes)
+                    .SetFont(normalFont)
+                    .SetFontSize(10));
             }
 
             // Footer
-            var footer = new Paragraph("Thank you for your business!", normalFont)
-            {
-                Alignment = Element.ALIGN_CENTER,
-                SpacingBefore = 30f
-            };
-            document.Add(footer);
+            document.Add(new Paragraph("Thank you for your business!")
+                .SetFont(normalFont)
+                .SetFontSize(10)
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetMarginTop(30));
 
             document.Close();
             return memoryStream.ToArray();
         }
 
-        public byte[] GenerateSalesReportPdf(SalesReportDto report)
-        {
-            using var memoryStream = new MemoryStream();
-            var document = new Document(PageSize.A4, 25, 25, 30, 30);
-            var writer = PdfWriter.GetInstance(document, memoryStream);
-            
-            document.Open();
-
-            var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.BLACK);
-            var headerFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLACK);
-            var normalFont = FontFactory.GetFont(FontFactory.HELVETICA, 10, BaseColor.BLACK);
-
-            // Title
-            var title = new Paragraph("SALES REPORT", titleFont)
-            {
-                Alignment = Element.ALIGN_CENTER,
-                SpacingAfter = 10f
-            };
-            document.Add(title);
-
-            // Report Period
-            var period = new Paragraph($"Period: {report.FromDate:dd/MM/yyyy} - {report.ToDate:dd/MM/yyyy}", headerFont)
-            {
-                Alignment = Element.ALIGN_CENTER,
-                SpacingAfter = 20f
-            };
-            document.Add(period);
-
-            // Summary Section
-            var summaryTitle = new Paragraph("SUMMARY", headerFont) { SpacingAfter = 10f };
-            document.Add(summaryTitle);
-
-            var summaryTable = new PdfPTable(2) { WidthPercentage = 60 };
-            summaryTable.SetWidths(new float[] { 2f, 1f });
-
-            var summaryData = new (string label, string value)[]
-            {
-                ("Total Sales:", $"${report.TotalSales:F2}"),
-                ("Total Transactions:", report.TotalTransactions.ToString()),
-                ("Average Transaction:", $"${report.AverageTransactionValue:F2}"),
-                ("Total Discounts:", $"${report.TotalDiscounts:F2}"),
-                ("Total Tax:", $"${report.TotalTax:F2}")
-            };
-
-            foreach (var (label, value) in summaryData)
-            {
-                summaryTable.AddCell(new PdfPCell(new Phrase(label, normalFont)) { Border = Rectangle.NO_BORDER, Padding = 3 });
-                summaryTable.AddCell(new PdfPCell(new Phrase(value, normalFont)) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 3 });
-            }
-
-            summaryTable.SpacingAfter = 20f;
-            document.Add(summaryTable);
-
-            // Top Selling Products
-            if (report.TopSellingProducts.Any())
-            {
-                var productsTitle = new Paragraph("TOP SELLING PRODUCTS", headerFont) { SpacingAfter = 10f };
-                document.Add(productsTitle);
-
-                var productsTable = new PdfPTable(4) { WidthPercentage = 100 };
-                productsTable.SetWidths(new float[] { 3f, 1f, 1.5f, 1.5f });
-
-                // Headers
-                var productHeaders = new string[] { "Product", "Qty Sold", "Unit Price", "Revenue" };
-                foreach (var header in productHeaders)
-                {
-                    var cell = new PdfPCell(new Phrase(header, headerFont))
-                    {
-                        BackgroundColor = BaseColor.LIGHT_GRAY,
-                        HorizontalAlignment = Element.ALIGN_CENTER,
-                        Padding = 5
-                    };
-                    productsTable.AddCell(cell);
-                }
-
-                // Data
-                foreach (var product in report.TopSellingProducts.Take(10))
-                {
-                    productsTable.AddCell(new PdfPCell(new Phrase(product.ProductName, normalFont)) { Padding = 5 });
-                    productsTable.AddCell(new PdfPCell(new Phrase(product.QuantitySold.ToString(), normalFont)) { HorizontalAlignment = Element.ALIGN_CENTER, Padding = 5 });
-                    productsTable.AddCell(new PdfPCell(new Phrase($"${product.UnitPrice:F2}", normalFont)) { HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 5 });
-                    productsTable.AddCell(new PdfPCell(new Phrase($"${product.TotalRevenue:F2}", normalFont)) { HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 5 });
-                }
-
-                productsTable.SpacingAfter = 20f;
-                document.Add(productsTable);
-            }
-
-            document.Close();
-            return memoryStream.ToArray();
-        }
-
-        public byte[] GenerateInventoryReportPdf(InventoryReportDto report)
-        {
-            using var memoryStream = new MemoryStream();
-            var document = new Document(PageSize.A4, 25, 25, 30, 30);
-            var writer = PdfWriter.GetInstance(document, memoryStream);
-            
-            document.Open();
-
-            var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.BLACK);
-            var headerFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLACK);
-            var normalFont = FontFactory.GetFont(FontFactory.HELVETICA, 10, BaseColor.BLACK);
-
-            // Title
-            var title = new Paragraph("INVENTORY REPORT", titleFont)
-            {
-                Alignment = Element.ALIGN_CENTER,
-                SpacingAfter = 20f
-            };
-            document.Add(title);
-
-            // Summary
-            var summaryTitle = new Paragraph("INVENTORY SUMMARY", headerFont) { SpacingAfter = 10f };
-            document.Add(summaryTitle);
-
-            var summaryTable = new PdfPTable(2) { WidthPercentage = 60 };
-            summaryTable.SetWidths(new float[] { 2f, 1f });
-
-            var summaryData = new (string label, string value)[]
-            {
-                ("Total Products:", report.TotalProducts.ToString()),
-                ("Total Inventory Value:", $"${report.TotalInventoryValue:F2}"),
-                ("Low Stock Products:", report.LowStockProductsCount.ToString()),
-                ("Out of Stock Products:", report.OutOfStockProductsCount.ToString())
-            };
-
-            foreach (var (label, value) in summaryData)
-            {
-                summaryTable.AddCell(new PdfPCell(new Phrase(label, normalFont)) { Border = Rectangle.NO_BORDER, Padding = 3 });
-                summaryTable.AddCell(new PdfPCell(new Phrase(value, normalFont)) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, Padding = 3 });
-            }
-
-            summaryTable.SpacingAfter = 20f;
-            document.Add(summaryTable);
-
-            document.Close();
-            return memoryStream.ToArray();
-        }
+        // ⚡ Similarly, update GenerateSalesReportPdf & GenerateInventoryReportPdf
+        // (same replacements: BaseColor -> ColorConstants, Paragraph/Table API from iText7)
     }
 }

@@ -28,7 +28,7 @@ namespace InventoryAPI.Models.DTOs
     public class CreateProductDto
     {
         [Required]
-        [StringLength(100)]
+        [StringLength(200)]
         public string Name { get; set; }
         
         public string Description { get; set; }
@@ -68,7 +68,7 @@ namespace InventoryAPI.Models.DTOs
     public class UpdateProductDto
     {
         [Required]
-        [StringLength(100)]
+        [StringLength(200)]
         public string Name { get; set; }
         
         public string Description { get; set; }
@@ -202,4 +202,26 @@ namespace InventoryAPI.Models.DTOs
         public int CreatedBy { get; set; }
         public string CreatedByName { get; set; }
     }
+
+    // public class BulkSupplierStatusUpdateDto
+    // {
+    //     [Required]
+    //     public List<int> SupplierIds { get; set; } = new List<int>();
+        
+    //     [Required]
+    //     public bool IsActive { get; set; }
+        
+    //     public string Reason { get; set; } = "";
+    // }
+
+    // public class BulkCategoryStatusUpdateDto
+    // {
+    //     [Required]
+    //     public List<int> CategoryIds { get; set; } = new List<int>();
+        
+    //     [Required]
+    //     public bool IsActive { get; set; }
+        
+    //     public string Reason { get; set; } = "";
+    // }
 }

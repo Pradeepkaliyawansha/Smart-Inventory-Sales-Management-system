@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using InventoryAPI.Models.DTOs;
 using InventoryAPI.Services.Interfaces;
+using InventoryAPI.Exceptions;
 
 namespace InventoryAPI.Controllers
 {

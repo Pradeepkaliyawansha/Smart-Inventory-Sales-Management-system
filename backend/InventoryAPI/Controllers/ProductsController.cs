@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using InventoryAPI.Models.DTOs;
 using InventoryAPI.Models.Enums;
 using InventoryAPI.Services.Interfaces;
+using InventoryAPI.Exceptions;
 
 namespace InventoryAPI.Controllers
 {

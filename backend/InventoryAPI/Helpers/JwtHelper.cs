@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using InventoryAPI.Models.Entities;
 using InventoryAPI.Models.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace InventoryAPI.Helpers
 {

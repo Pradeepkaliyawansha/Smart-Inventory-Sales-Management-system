@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace InventoryAPI.Models.Entities
 {
     public class Customer
@@ -29,5 +31,3 @@ namespace InventoryAPI.Models.Entities
         public ICollection<Sale> Sales { get; set; } = new List<Sale>();
     }
 }
-
-
