@@ -88,17 +88,21 @@ namespace InventoryAPI.Services
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
                 user.CreatedAt = DateTime.UtcNow;
                 user.IsActive = true; 
+                user.LastLogin = DateTime.UtcNow;
                 // Removed user.Id = 0; to let the database handle primary key generation.
-                
+
                 _context.Users.Add(user); // Add entity to context
                 
+
+                // CRITICAL: Save to database FIRST to get the generated user.Id
+                await _context.SaveChangesAsync();
+
                 // Generate tokens and set user properties before the final save
                 var token = _jwtHelper.GenerateAccessToken(user);
                 var refreshToken = _jwtHelper.GenerateRefreshToken();
 
                 user.RefreshToken = refreshToken;
                 user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-                user.LastLogin = DateTime.UtcNow; // Set initial LastLogin on registration
 
                 // FINAL SAVE: Only one SaveChangesAsync is required for the entire transaction.
                 await _context.SaveChangesAsync(); 

@@ -3,6 +3,7 @@ import { ChartData, ChartOptions } from 'chart.js';
 import { DashboardService } from './dashboard.service';
 import { Subject, forkJoin } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
+import { Router } from '@angular/router'; // <-- ADDED: Import Router
 
 // Angular Material
 import { MatIconModule } from '@angular/material/icon';
@@ -16,6 +17,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BaseChartDirective } from 'ng2-charts';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
+
+// ... (Interface definitions remain the same) ...
+
 interface DashboardSummary {
   totalSalesAmount: number;
   totalSalesAmountToday: number;
@@ -158,7 +162,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
   };
 
-  constructor(private dashboardService: DashboardService) {}
+  // UPDATED: Added Router to constructor
+  constructor(
+    private dashboardService: DashboardService,
+    private router: Router // <-- ADDED: Inject Router
+  ) {}
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -200,6 +208,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
         },
       });
   }
+
+  // --- ADDED: Log out method ---
+  logOut(): void {
+    // 1. Perform any necessary cleanup (e.g., call an AuthService to clear tokens/session)
+    console.log('User logged out. Clearing session data...');
+    // Example: this.authService.logout();
+
+    // 2. Navigate to the sign-in page
+    // **NOTE**: Adjust the route path ('/sign-in') to match your application's routing configuration.
+    this.router.navigate(['/sign-in']).catch((err) => {
+      console.error('Navigation to sign-in page failed:', err);
+    });
+  }
+  // -----------------------------
 
   private setupSalesChart(salesData: ChartDataPoint[]): void {
     if (!salesData || salesData.length === 0) {
