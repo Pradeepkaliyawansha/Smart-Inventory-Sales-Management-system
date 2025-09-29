@@ -122,7 +122,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Configure URLs
+// Configure URLs - NO CHANGE HERE, HTTP 5000 and HTTPS 7000 is correct
 builder.WebHost.UseUrls("http://localhost:5000", "https://localhost:7000");
 
 var app = builder.Build();

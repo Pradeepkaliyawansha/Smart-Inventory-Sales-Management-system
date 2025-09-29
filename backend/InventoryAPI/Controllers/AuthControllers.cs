@@ -33,7 +33,7 @@ namespace InventoryAPI.Controllers
         }
         
         [HttpPost("register")]
-        [AllowAnonymous] // IMPORTANT: Add this attribute to allow anonymous access
+        [AllowAnonymous] 
         public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto registerDto)
         {
             try

@@ -176,6 +176,9 @@ export class RegisterComponent implements OnInit {
         },
         error: (error) => {
           this.loading = false;
+          // The .NET controller returns a JSON object like:
+          // { message: "An error occurred during registration", error: "..." }
+          // This line is already good for handling that response
           const errorMessage =
             error.error?.message || 'Registration failed. Please try again.';
           this.notificationService.showError(errorMessage);

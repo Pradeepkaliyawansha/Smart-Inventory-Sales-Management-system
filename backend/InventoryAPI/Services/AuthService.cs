@@ -83,21 +83,25 @@ namespace InventoryAPI.Services
                 }
 
                 var user = _mapper.Map<User>(registerDto);
+                
+                // CRITICAL FIXES: Initialize properties and handle hashing
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
                 user.CreatedAt = DateTime.UtcNow;
-
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
-
-                // FIX: Changed GenerateJwtToken to GenerateAccessToken
+                user.IsActive = true; 
+                // Removed user.Id = 0; to let the database handle primary key generation.
+                
+                _context.Users.Add(user); // Add entity to context
+                
+                // Generate tokens and set user properties before the final save
                 var token = _jwtHelper.GenerateAccessToken(user);
                 var refreshToken = _jwtHelper.GenerateRefreshToken();
 
                 user.RefreshToken = refreshToken;
                 user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-                user.LastLogin = DateTime.UtcNow;
+                user.LastLogin = DateTime.UtcNow; // Set initial LastLogin on registration
 
-                await _context.SaveChangesAsync();
+                // FINAL SAVE: Only one SaveChangesAsync is required for the entire transaction.
+                await _context.SaveChangesAsync(); 
 
                 var userDto = _mapper.Map<UserDto>(user);
 

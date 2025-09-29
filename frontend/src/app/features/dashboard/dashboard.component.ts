@@ -15,6 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 // Chart.js
 import { BaseChartDirective } from 'ng2-charts';
 import { MatCardModule } from '@angular/material/card';
+import { CommonModule } from '@angular/common';
 interface DashboardSummary {
   totalSalesAmount: number;
   totalSalesAmountToday: number;
@@ -72,6 +73,7 @@ interface LowStockAlert {
 
     // Chart.js
     BaseChartDirective,
+    CommonModule,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
