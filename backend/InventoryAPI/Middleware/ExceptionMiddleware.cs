@@ -1,6 +1,8 @@
 using System.Net;
 using System.Text.Json;
-using InventoryAPI.Exceptions;
+using InventoryAPI.Services; // <-- FIX 1: Add this using directive
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace InventoryAPI.Middleware
 {
@@ -8,69 +10,77 @@ namespace InventoryAPI.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionMiddleware> _logger;
-        
-        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
+        private readonly IHostEnvironment _env;
+
+        public ExceptionMiddleware(
+            RequestDelegate next, 
+            ILogger<ExceptionMiddleware> logger, 
+            IHostEnvironment env)
         {
             _next = next;
             _logger = logger;
+            _env = env;
         }
-        
-        public async Task InvokeAsync(HttpContext httpContext)
+
+        public async Task InvokeAsync(HttpContext context)
         {
             try
             {
-                await _next(httpContext);
+                await _next(context);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred");
-                await HandleExceptionAsync(httpContext, ex);
+                _logger.LogError(ex, "Unhandled exception: {ExceptionMessage}", ex.Message);
+                
+                context.Response.ContentType = "application/json";
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+                // Determine the correct status code and response based on exception type
+                var statusCode = (int)HttpStatusCode.InternalServerError;
+                var message = "An internal server error has occurred.";
+
+                switch (ex)
+                {
+                    case UnauthorizedAccessException unauthorizedEx:
+                        statusCode = (int)HttpStatusCode.Unauthorized;
+                        message = unauthorizedEx.Message;
+                        break;
+                    case ArgumentException argumentEx:
+                        statusCode = (int)HttpStatusCode.BadRequest;
+                        message = argumentEx.Message;
+                        break;
+                    case NotFoundException notFoundEx:
+                        statusCode = (int)HttpStatusCode.NotFound;
+                        message = notFoundEx.Message;
+                        break;
+                    // FIX 2: Check for BadRequestException and use a unique variable name (e.g., badRequestEx)
+                    case BadRequestException badRequestEx:
+                        statusCode = (int)HttpStatusCode.BadRequest;
+                        message = badRequestEx.Message;
+                        break;
+                    default:
+                        // Use the default status code and message for general exceptions
+                        // Log full details for internal server errors
+                        _logger.LogError(ex, "A critical unhandled error occurred: {Message}", ex.Message);
+                        break;
+                }
+
+                // Create the error response object
+                var response = new
+                {
+                    statusCode = statusCode,
+                    message = message,
+                    // Only include StackTrace in Development environment
+                    details = _env.IsDevelopment() ? ex.StackTrace?.ToString() : null 
+                };
+
+                context.Response.StatusCode = statusCode;
+
+                var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+                var json = JsonSerializer.Serialize(response, jsonOptions);
+
+                await context.Response.WriteAsync(json);
             }
         }
-        
-        private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
-        {
-            context.Response.ContentType = "application/json";
-            
-            var response = new ErrorResponse();
-            
-            switch (exception)
-            {
-                case NotFoundException ex:
-                    response.Message = ex.Message;
-                    response.StatusCode = (int)HttpStatusCode.NotFound;
-                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                    break;
-                    
-                case BadRequestException ex:
-                case ArgumentException ex:
-                    response.Message = ex.Message;
-                    response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    break;
-                    
-                case UnauthorizedAccessException ex:
-                    response.Message = ex.Message;
-                    response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                    break;
-                    
-                default:
-                    response.Message = "An internal server error occurred.";
-                    response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    break;
-            }
-            
-            var jsonResponse = JsonSerializer.Serialize(response);
-            await context.Response.WriteAsync(jsonResponse);
-        }
-    }
-    
-    public class ErrorResponse
-    {
-        public int StatusCode { get; set; }
-        public string Message { get; set; }
-        public object Details { get; set; }
     }
 }

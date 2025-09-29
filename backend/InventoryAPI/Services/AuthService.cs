@@ -40,7 +40,8 @@ namespace InventoryAPI.Services
                     throw new UnauthorizedAccessException("Invalid username or password");
                 }
 
-                var token = _jwtHelper.GenerateJwtToken(user);
+                // FIX: Changed GenerateJwtToken to GenerateAccessToken
+                var token = _jwtHelper.GenerateAccessToken(user);
                 var refreshToken = _jwtHelper.GenerateRefreshToken();
 
                 user.RefreshToken = refreshToken;
@@ -88,7 +89,8 @@ namespace InventoryAPI.Services
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
-                var token = _jwtHelper.GenerateJwtToken(user);
+                // FIX: Changed GenerateJwtToken to GenerateAccessToken
+                var token = _jwtHelper.GenerateAccessToken(user);
                 var refreshToken = _jwtHelper.GenerateRefreshToken();
 
                 user.RefreshToken = refreshToken;
@@ -125,7 +127,8 @@ namespace InventoryAPI.Services
                     throw new UnauthorizedAccessException("Invalid or expired refresh token");
                 }
 
-                var newToken = _jwtHelper.GenerateJwtToken(user);
+                // FIX: Changed GenerateJwtToken to GenerateAccessToken
+                var newToken = _jwtHelper.GenerateAccessToken(user);
                 var newRefreshToken = _jwtHelper.GenerateRefreshToken();
 
                 user.RefreshToken = newRefreshToken;
@@ -264,7 +267,8 @@ namespace InventoryAPI.Services
         {
             try
             {
-                return _jwtHelper.ValidateJwtToken(token);
+                // FIX: Changed ValidateJwtToken to ValidateToken
+                return _jwtHelper.ValidateToken(token) != null;
             }
             catch (Exception ex)
             {

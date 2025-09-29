@@ -101,6 +101,16 @@ namespace InventoryAPI.Helpers
         }
 
         /// <summary>
+        /// Generate JWT token for user authentication (alias for GenerateAccessToken)
+        /// </summary>
+        /// <param name="user">User entity</param>
+        /// <returns>JWT token string</returns>
+        public string GenerateJwtToken(User user)
+        {
+            return GenerateAccessToken(user);
+        }
+
+        /// <summary>
         /// Generate secure refresh token
         /// </summary>
         /// <returns>Base64 encoded refresh token</returns>
@@ -168,6 +178,17 @@ namespace InventoryAPI.Helpers
                 _logger.LogError(ex, "Unexpected error during token validation");
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Validate JWT token and return boolean result
+        /// </summary>
+        /// <param name="token">JWT token to validate</param>
+        /// <returns>True if token is valid, false otherwise</returns>
+        public bool ValidateJwtToken(string token)
+        {
+            var principal = ValidateToken(token);
+            return principal != null;
         }
 
         /// <summary>

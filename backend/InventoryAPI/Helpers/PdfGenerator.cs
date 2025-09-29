@@ -8,6 +8,7 @@ using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
 using iText.Layout.Properties;
+using iText.Layout.Borders; // <-- FIX: Added missing using for Border.NO_BORDER
 
 namespace InventoryAPI.Helpers
 {
@@ -49,14 +50,14 @@ namespace InventoryAPI.Helpers
             // Customer + Invoice details table
             var detailsTable = new Table(UnitValue.CreatePercentArray(new float[] { 1, 1 })).UseAllAvailableWidth();
 
-            var customerCell = new Cell().SetBorder(Border.NO_BORDER);
+            var customerCell = new Cell().SetBorder(Border.NO_BORDER); // FIX: Border is now accessible
             customerCell.Add(new Paragraph("BILL TO:").SetFont(titleFont).SetFontSize(12));
             customerCell.Add(new Paragraph($"Customer: {invoice.Customer?.Name ?? "N/A"}").SetFont(normalFont).SetFontSize(10));
             customerCell.Add(new Paragraph($"Email: {invoice.Customer?.Email ?? "N/A"}").SetFont(normalFont).SetFontSize(10));
             customerCell.Add(new Paragraph($"Phone: {invoice.Customer?.Phone ?? "N/A"}").SetFont(normalFont).SetFontSize(10));
             customerCell.Add(new Paragraph($"Address: {invoice.Customer?.Address ?? "N/A"}").SetFont(normalFont).SetFontSize(10));
 
-            var invoiceCell = new Cell().SetBorder(Border.NO_BORDER);
+            var invoiceCell = new Cell().SetBorder(Border.NO_BORDER); // FIX: Border is now accessible
             invoiceCell.Add(new Paragraph("INVOICE DETAILS:").SetFont(titleFont).SetFontSize(12));
             invoiceCell.Add(new Paragraph($"Date: {invoice.SaleDate:dd/MM/yyyy}").SetFont(normalFont).SetFontSize(10));
             invoiceCell.Add(new Paragraph($"Sales Person: {invoice.SalesPerson?.FullName ?? "N/A"}").SetFont(normalFont).SetFontSize(10));
@@ -114,13 +115,13 @@ namespace InventoryAPI.Helpers
                 var labelCell = new Cell().Add(new Paragraph(label)
                     .SetFont(label == "Total:" ? titleFont : normalFont)
                     .SetFontSize(10))
-                    .SetBorder(Border.NO_BORDER)
+                    .SetBorder(Border.NO_BORDER) // FIX: Border is now accessible
                     .SetTextAlignment(TextAlignment.RIGHT);
 
                 var amountCell = new Cell().Add(new Paragraph($"${amount:F2}")
                     .SetFont(label == "Total:" ? titleFont : normalFont)
                     .SetFontSize(10))
-                    .SetBorder(Border.NO_BORDER)
+                    .SetBorder(Border.NO_BORDER) // FIX: Border is now accessible
                     .SetTextAlignment(TextAlignment.RIGHT);
 
                 if (label == "Total:")
@@ -160,7 +161,40 @@ namespace InventoryAPI.Helpers
             return memoryStream.ToArray();
         }
 
-        // ⚡ Similarly, update GenerateSalesReportPdf & GenerateInventoryReportPdf
-        // (same replacements: BaseColor -> ColorConstants, Paragraph/Table API from iText7)
+        // --- STUB IMPLEMENTATION TO RESOLVE CS1061 IN ReportService.cs ---
+
+        public byte[] GenerateSalesReportPdf(IEnumerable<object> salesData, DateTime startDate, DateTime endDate)
+        {
+            // IMPORTANT: Replace 'object' with your actual DTO for the Sales Report.
+            // This is a stub to make the compiler happy.
+            using var memoryStream = new MemoryStream();
+            using var writer = new PdfWriter(memoryStream);
+            using var pdf = new PdfDocument(writer);
+            var document = new Document(pdf, iText.Kernel.Geom.PageSize.A4);
+            
+            document.Add(new Paragraph("Sales Report PDF Stub - Implement Logic Here")
+                .SetTextAlignment(TextAlignment.CENTER));
+            
+            document.Close();
+            return memoryStream.ToArray();
+        }
+
+        public byte[] GenerateInventoryReportPdf(IEnumerable<object> inventoryData)
+        {
+            // IMPORTANT: Replace 'object' with your actual DTO for the Inventory Report.
+            // This is a stub to make the compiler happy.
+            using var memoryStream = new MemoryStream();
+            using var writer = new PdfWriter(memoryStream);
+            using var pdf = new PdfDocument(writer);
+            var document = new Document(pdf, iText.Kernel.Geom.PageSize.A4);
+
+            document.Add(new Paragraph("Inventory Report PDF Stub - Implement Logic Here")
+                .SetTextAlignment(TextAlignment.CENTER));
+
+            document.Close();
+            return memoryStream.ToArray();
+        }
+
+        // -----------------------------------------------------------------
     }
 }

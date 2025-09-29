@@ -65,7 +65,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddScoped<PdfGenerator>();
 
-// CORS
+// CORS - Updated with more permissive settings for development
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
@@ -73,7 +73,16 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowCredentials()
+              .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
+    });
+    
+    // Add a more permissive policy for development
+    options.AddPolicy("Development", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
@@ -113,6 +122,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Configure URLs
+builder.WebHost.UseUrls("http://localhost:5000", "https://localhost:7000");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -131,14 +143,28 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// Force HTTPS redirect only in production
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseStaticFiles();
 
-app.UseCors("AllowAngularApp");
+// IMPORTANT: CORS must come before Authentication and Authorization
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("Development");
+}
+else
+{
+    app.UseCors("AllowAngularApp");
+}
 
-// Custom middleware
+// Custom middleware - put after CORS but before Auth
 app.UseMiddleware<ExceptionMiddleware>();
 
+// Authentication and Authorization must come AFTER CORS
 app.UseAuthentication();
 app.UseAuthorization();
 

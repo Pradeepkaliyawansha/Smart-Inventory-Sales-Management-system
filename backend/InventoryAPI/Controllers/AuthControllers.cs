@@ -18,6 +18,7 @@ namespace InventoryAPI.Controllers
         }
         
         [HttpPost("login")]
+        [AllowAnonymous] // Add this attribute
         public async Task<ActionResult<AuthResponseDto>> Login(LoginDto loginDto)
         {
             try
@@ -32,7 +33,7 @@ namespace InventoryAPI.Controllers
         }
         
         [HttpPost("register")]
-        [Authorize(Roles = "Admin")]
+        [AllowAnonymous] // IMPORTANT: Add this attribute to allow anonymous access
         public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto registerDto)
         {
             try
@@ -44,9 +45,14 @@ namespace InventoryAPI.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred during registration", error = ex.Message });
+            }
         }
         
         [HttpPost("refresh-token")]
+        [AllowAnonymous] // Add this attribute
         public async Task<ActionResult<AuthResponseDto>> RefreshToken(RefreshTokenDto refreshTokenDto)
         {
             try

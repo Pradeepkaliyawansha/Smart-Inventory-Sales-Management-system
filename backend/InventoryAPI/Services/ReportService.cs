@@ -1,4 +1,3 @@
-
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using InventoryAPI.Data;
@@ -7,6 +6,7 @@ using InventoryAPI.Models.Enums;
 using InventoryAPI.Services.Interfaces;
 using InventoryAPI.Helpers;
 using OfficeOpenXml;
+using System.Linq; // Added for clarity, often implicit
 
 namespace InventoryAPI.Services
 {
@@ -81,12 +81,13 @@ namespace InventoryAPI.Services
                 // Top selling products
                 report.TopSellingProducts = sales
                     .SelectMany(s => s.SaleItems)
-                    .GroupBy(si => new { si.ProductId, si.Product.Name, si.Product.Category.Name })
+                    // FIX CS0833 (Line 80): Rename the clashing 'Name' properties
+                    .GroupBy(si => new { si.ProductId, ProductName = si.Product.Name, CategoryName = si.Product.Category.Name })
                     .Select(g => new TopSellingProductDto
                     {
                         ProductId = g.Key.ProductId,
-                        ProductName = g.Key.Name,
-                        CategoryName = g.Key.Name,
+                        ProductName = g.Key.ProductName,
+                        CategoryName = g.Key.CategoryName,
                         QuantitySold = g.Sum(si => si.Quantity),
                         TotalRevenue = g.Sum(si => si.TotalPrice),
                         UnitPrice = g.Average(si => si.UnitPrice)
@@ -215,7 +216,8 @@ namespace InventoryAPI.Services
             try
             {
                 var report = await GenerateSalesReportAsync(fromDate, toDate);
-                return _pdfGenerator.GenerateSalesReportPdf(report);
+                // FIX CS7036 (Line 218): Pass the required date arguments and the data list
+                return _pdfGenerator.GenerateSalesReportPdf(report.TopSellingProducts, fromDate, toDate);
             }
             catch (Exception ex)
             {
@@ -229,7 +231,8 @@ namespace InventoryAPI.Services
             try
             {
                 var report = await GenerateInventoryReportAsync();
-                return _pdfGenerator.GenerateInventoryReportPdf(report);
+                // FIX CS1503 (Line 232): Pass the list of data (IEnumerable) instead of the whole DTO
+                return _pdfGenerator.GenerateInventoryReportPdf(report.ProductStockLevels);
             }
             catch (Exception ex)
             {
@@ -297,12 +300,13 @@ namespace InventoryAPI.Services
                 var topProducts = await _context.Sales
                     .Where(s => s.SaleDate >= fromDate && s.SaleDate <= toDate && s.IsCompleted)
                     .SelectMany(s => s.SaleItems)
-                    .GroupBy(si => new { si.ProductId, si.Product.Name, si.Product.Category.Name })
+                    // FIX CS0833 (Line 300): Rename the clashing 'Name' properties
+                    .GroupBy(si => new { si.ProductId, ProductName = si.Product.Name, CategoryName = si.Product.Category.Name })
                     .Select(g => new TopSellingProductDto
                     {
                         ProductId = g.Key.ProductId,
-                        ProductName = g.Key.Name,
-                        CategoryName = g.Key.Name,
+                        ProductName = g.Key.ProductName,
+                        CategoryName = g.Key.CategoryName,
                         QuantitySold = g.Sum(si => si.Quantity),
                         TotalRevenue = g.Sum(si => si.TotalPrice),
                         UnitPrice = g.Average(si => si.UnitPrice)
@@ -487,12 +491,13 @@ namespace InventoryAPI.Services
                 var topProducts = await _context.Sales
                     .Where(s => s.SaleDate >= today && s.SaleDate < tomorrow && s.IsCompleted)
                     .SelectMany(s => s.SaleItems)
-                    .GroupBy(si => new { si.ProductId, si.Product.Name, si.Product.Category.Name })
+                    // FIX CS0833 (Line 490): Rename the clashing 'Name' properties
+                    .GroupBy(si => new { si.ProductId, ProductName = si.Product.Name, CategoryName = si.Product.Category.Name })
                     .Select(g => new TopSellingProductDto
                     {
                         ProductId = g.Key.ProductId,
-                        ProductName = g.Key.Name,
-                        CategoryName = g.Key.Name,
+                        ProductName = g.Key.ProductName,
+                        CategoryName = g.Key.CategoryName,
                         QuantitySold = g.Sum(si => si.Quantity),
                         TotalRevenue = g.Sum(si => si.TotalPrice),
                         UnitPrice = g.Average(si => si.UnitPrice)

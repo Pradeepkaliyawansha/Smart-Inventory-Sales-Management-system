@@ -31,7 +31,6 @@
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <!-- Updated JWT package to fix security vulnerability -->
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.1.2" />
-  <PackageReference Include="itext7" Version="7.x.x" />
   </ItemGroup>
 
 </Project>

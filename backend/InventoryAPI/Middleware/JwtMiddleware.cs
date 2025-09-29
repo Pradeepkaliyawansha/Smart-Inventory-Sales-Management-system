@@ -196,7 +196,7 @@ namespace InventoryAPI.Middleware
         /// </summary>
         /// <param name="userId">User ID to validate</param>
         /// <returns>User entity or null if not found/inactive</returns>
-        private async Task<dynamic> ValidateUserAsync(int userId)
+        private async Task<UserValidationDto?> ValidateUserAsync(int userId) // FIX: Changed return type from dynamic
         {
             try
             {
@@ -205,7 +205,12 @@ namespace InventoryAPI.Middleware
 
                 var user = await context.Users
                     .Where(u => u.Id == userId && u.IsActive)
-                    .Select(u => new { u.Id, u.Username, u.Role, u.FullName, u.IsActive })
+                    .Select(u => new UserValidationDto( // FIX: Project into strongly-typed DTO
+                        u.Id, 
+                        u.Username, 
+                        u.Role, 
+                        u.FullName, 
+                        u.IsActive))
                     .FirstOrDefaultAsync();
 
                 return user;
@@ -622,6 +627,16 @@ namespace InventoryAPI.Middleware
     }
 
     #region Supporting Classes
+    
+    /// <summary>
+    /// User data subset for JWT validation (Strongly-typed to avoid CS1973 dynamic dispatch errors)
+    /// </summary>
+    internal record UserValidationDto(
+        int Id, 
+        string Username, 
+        UserRole Role, 
+        string FullName, 
+        bool IsActive);
 
     /// <summary>
     /// Token usage information for rate limiting
