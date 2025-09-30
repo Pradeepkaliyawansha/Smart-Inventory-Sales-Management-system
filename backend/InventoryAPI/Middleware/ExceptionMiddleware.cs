@@ -1,6 +1,6 @@
 using System.Net;
 using System.Text.Json;
-using InventoryAPI.Services; // <-- FIX 1: Add this using directive
+using InventoryAPI.Exceptions; // Add this using directive
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -53,7 +53,6 @@ namespace InventoryAPI.Middleware
                         statusCode = (int)HttpStatusCode.NotFound;
                         message = notFoundEx.Message;
                         break;
-                    // FIX 2: Check for BadRequestException and use a unique variable name (e.g., badRequestEx)
                     case BadRequestException badRequestEx:
                         statusCode = (int)HttpStatusCode.BadRequest;
                         message = badRequestEx.Message;

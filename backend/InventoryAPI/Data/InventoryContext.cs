@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using InventoryAPI.Models.Entities;
 using InventoryAPI.Models.Enums;
-using BCrypt.Net; // This is needed for the SeedData
+using BCrypt.Net;
 
 namespace InventoryAPI.Data
 {
@@ -31,7 +31,6 @@ namespace InventoryAPI.Data
                 entity.HasIndex(e => e.Username).IsUnique();
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.Property(e => e.Role).HasConversion<int>();
-                // FIX: Changed "CURRENT_TIMESTAMP" to "UTC_TIMESTAMP(6)" for MySQL compatibility and consistency
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("UTC_TIMESTAMP(6)");
             });
             
@@ -43,9 +42,7 @@ namespace InventoryAPI.Data
                 entity.HasIndex(e => e.Barcode).IsUnique();
                 entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.CostPrice).HasColumnType("decimal(18,2)");
-                // FIX: Changed "GETUTCDATE()" to "UTC_TIMESTAMP(6)" for MySQL compatibility
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("UTC_TIMESTAMP(6)");
-                // FIX: Changed "GETUTCDATE()" to "UTC_TIMESTAMP(6)" for MySQL compatibility
                 entity.Property(e => e.UpdatedAt).HasDefaultValueSql("UTC_TIMESTAMP(6)");
                 
                 entity.HasOne(e => e.Category)
@@ -63,7 +60,6 @@ namespace InventoryAPI.Data
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                // FIX: Changed "GETUTCDATE()" to "UTC_TIMESTAMP(6)" for MySQL compatibility
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("UTC_TIMESTAMP(6)");
             });
             
@@ -71,7 +67,6 @@ namespace InventoryAPI.Data
             modelBuilder.Entity<Supplier>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                // FIX: Changed "GETUTCDATE()" to "UTC_TIMESTAMP(6)" for MySQL compatibility
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("UTC_TIMESTAMP(6)");
             });
             
@@ -86,7 +81,6 @@ namespace InventoryAPI.Data
                 entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.PaidAmount).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.PaymentMethod).HasConversion<int>();
-                // FIX: Changed "GETUTCDATE()" to "UTC_TIMESTAMP(6)" for MySQL compatibility
                 entity.Property(e => e.SaleDate).HasDefaultValueSql("UTC_TIMESTAMP(6)");
                 
                 entity.HasOne(e => e.Customer)
@@ -125,7 +119,6 @@ namespace InventoryAPI.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.LoyaltyPoints).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.CreditBalance).HasColumnType("decimal(18,2)");
-                // FIX: Changed "GETUTCDATE()" to "UTC_TIMESTAMP(6)" for MySQL compatibility
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("UTC_TIMESTAMP(6)");
             });
             
@@ -134,7 +127,6 @@ namespace InventoryAPI.Data
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.MovementType).HasConversion<int>();
-                // FIX: Changed "GETUTCDATE()" to "UTC_TIMESTAMP(6)" for MySQL compatibility
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("UTC_TIMESTAMP(6)");
                 
                 entity.HasOne(e => e.Product)
@@ -154,6 +146,9 @@ namespace InventoryAPI.Data
         
         private void SeedData(ModelBuilder modelBuilder)
         {
+            // CRITICAL FIX: Use static, hardcoded dates instead of new DateTime()
+            var seedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            
             // Seed default admin user
             modelBuilder.Entity<User>().HasData(
                 new User
@@ -161,33 +156,101 @@ namespace InventoryAPI.Data
                     Id = 1,
                     Username = "admin",
                     Email = "admin@inventory.com",
-                    // NOTE: BCrypt.Net.BCrypt is used here, ensure the library is correctly referenced.
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
                     FullName = "System Administrator",
                     Role = UserRole.Admin,
                     IsActive = true,
-                    CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    CreatedAt = seedDate
                 }
             );
             
             // Seed default categories
             modelBuilder.Entity<Category>().HasData(
-                new Category { Id = 1, Name = "Electronics", Description = "Electronic devices and accessories", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-                new Category { Id = 2, Name = "Clothing", Description = "Apparel and fashion items", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-                new Category { Id = 3, Name = "Books", Description = "Books and educational materials", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-                new Category { Id = 4, Name = "Home & Garden", Description = "Home improvement and garden supplies", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
+                new Category 
+                { 
+                    Id = 1, 
+                    Name = "Electronics", 
+                    Description = "Electronic devices and accessories", 
+                    CreatedAt = seedDate,
+                    IsActive = true
+                },
+                new Category 
+                { 
+                    Id = 2, 
+                    Name = "Clothing", 
+                    Description = "Apparel and fashion items", 
+                    CreatedAt = seedDate,
+                    IsActive = true
+                },
+                new Category 
+                { 
+                    Id = 3, 
+                    Name = "Books", 
+                    Description = "Books and educational materials", 
+                    CreatedAt = seedDate,
+                    IsActive = true
+                },
+                new Category 
+                { 
+                    Id = 4, 
+                    Name = "Home & Garden", 
+                    Description = "Home improvement and garden supplies", 
+                    CreatedAt = seedDate,
+                    IsActive = true
+                }
             );
             
             // Seed default suppliers
             modelBuilder.Entity<Supplier>().HasData(
-                new Supplier { Id = 1, Name = "TechCorp Supply", ContactPerson = "John Smith", Email = "john@techcorp.com", Phone = "+1-555-0101", Address = "123 Tech Street, Silicon Valley, CA", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-                new Supplier { Id = 2, Name = "Fashion Wholesale", ContactPerson = "Jane Doe", Email = "jane@fashionwholesale.com", Phone = "+1-555-0102", Address = "456 Fashion Ave, New York, NY", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-                new Supplier { Id = 3, Name = "Book Distributors Inc", ContactPerson = "Bob Wilson", Email = "bob@bookdist.com", Phone = "+1-555-0103", Address = "789 Literature Lane, Boston, MA", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
+                new Supplier 
+                { 
+                    Id = 1, 
+                    Name = "TechCorp Supply", 
+                    ContactPerson = "John Smith", 
+                    Email = "john@techcorp.com", 
+                    Phone = "+1-555-0101", 
+                    Address = "123 Tech Street, Silicon Valley, CA", 
+                    CreatedAt = seedDate,
+                    IsActive = true
+                },
+                new Supplier 
+                { 
+                    Id = 2, 
+                    Name = "Fashion Wholesale", 
+                    ContactPerson = "Jane Doe", 
+                    Email = "jane@fashionwholesale.com", 
+                    Phone = "+1-555-0102", 
+                    Address = "456 Fashion Ave, New York, NY", 
+                    CreatedAt = seedDate,
+                    IsActive = true
+                },
+                new Supplier 
+                { 
+                    Id = 3, 
+                    Name = "Book Distributors Inc", 
+                    ContactPerson = "Bob Wilson", 
+                    Email = "bob@bookdist.com", 
+                    Phone = "+1-555-0103", 
+                    Address = "789 Literature Lane, Boston, MA", 
+                    CreatedAt = seedDate,
+                    IsActive = true
+                }
             );
             
             // Seed default customer
             modelBuilder.Entity<Customer>().HasData(
-                new Customer { Id = 1, Name = "Walk-in Customer", Email = "walkin@store.com", Phone = "N/A", Address = "Store Location", LoyaltyPoints = 0, CreditBalance = 0, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
+                new Customer 
+                { 
+                    Id = 1, 
+                    Name = "Walk-in Customer", 
+                    Email = "walkin@store.com", 
+                    Phone = "N/A", 
+                    Address = "Store Location", 
+                    LoyaltyPoints = 0, 
+                    CreditBalance = 0, 
+                    CreatedAt = seedDate,
+                    IsActive = true
+                }
             );
         }
     }
