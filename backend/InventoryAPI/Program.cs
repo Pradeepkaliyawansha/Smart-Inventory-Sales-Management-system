@@ -22,7 +22,10 @@ builder.Services.AddControllers()
 
 // Database
 builder.Services.AddDbContext<InventoryContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseMySql(
+    builder.Configuration.GetConnectionString("DefaultConnection"),
+    ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+));
 
 // Authentication
 var jwtKey = builder.Configuration["Jwt:Key"];

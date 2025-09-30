@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using InventoryAPI.Models.Entities;
 using InventoryAPI.Models.Enums;
+using BCrypt.Net; // This is needed for the SeedData
 
 namespace InventoryAPI.Data
 {
@@ -30,7 +31,8 @@ namespace InventoryAPI.Data
                 entity.HasIndex(e => e.Username).IsUnique();
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.Property(e => e.Role).HasConversion<int>();
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                // FIX: Changed "CURRENT_TIMESTAMP" to "UTC_TIMESTAMP(6)" for MySQL compatibility and consistency
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("UTC_TIMESTAMP(6)");
             });
             
             // Configure Product entity
@@ -41,8 +43,10 @@ namespace InventoryAPI.Data
                 entity.HasIndex(e => e.Barcode).IsUnique();
                 entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.CostPrice).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-                entity.Property(e => e.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
+                // FIX: Changed "GETUTCDATE()" to "UTC_TIMESTAMP(6)" for MySQL compatibility
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("UTC_TIMESTAMP(6)");
+                // FIX: Changed "GETUTCDATE()" to "UTC_TIMESTAMP(6)" for MySQL compatibility
+                entity.Property(e => e.UpdatedAt).HasDefaultValueSql("UTC_TIMESTAMP(6)");
                 
                 entity.HasOne(e => e.Category)
                     .WithMany(c => c.Products)
@@ -59,14 +63,16 @@ namespace InventoryAPI.Data
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                // FIX: Changed "GETUTCDATE()" to "UTC_TIMESTAMP(6)" for MySQL compatibility
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("UTC_TIMESTAMP(6)");
             });
             
             // Configure Supplier entity
             modelBuilder.Entity<Supplier>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                // FIX: Changed "GETUTCDATE()" to "UTC_TIMESTAMP(6)" for MySQL compatibility
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("UTC_TIMESTAMP(6)");
             });
             
             // Configure Sale entity
@@ -80,7 +86,8 @@ namespace InventoryAPI.Data
                 entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.PaidAmount).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.PaymentMethod).HasConversion<int>();
-                entity.Property(e => e.SaleDate).HasDefaultValueSql("GETUTCDATE()");
+                // FIX: Changed "GETUTCDATE()" to "UTC_TIMESTAMP(6)" for MySQL compatibility
+                entity.Property(e => e.SaleDate).HasDefaultValueSql("UTC_TIMESTAMP(6)");
                 
                 entity.HasOne(e => e.Customer)
                     .WithMany(c => c.Sales)
@@ -118,7 +125,8 @@ namespace InventoryAPI.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.LoyaltyPoints).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.CreditBalance).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                // FIX: Changed "GETUTCDATE()" to "UTC_TIMESTAMP(6)" for MySQL compatibility
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("UTC_TIMESTAMP(6)");
             });
             
             // Configure StockMovement entity
@@ -126,7 +134,8 @@ namespace InventoryAPI.Data
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.MovementType).HasConversion<int>();
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                // FIX: Changed "GETUTCDATE()" to "UTC_TIMESTAMP(6)" for MySQL compatibility
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("UTC_TIMESTAMP(6)");
                 
                 entity.HasOne(e => e.Product)
                     .WithMany(p => p.StockMovements)
@@ -152,6 +161,7 @@ namespace InventoryAPI.Data
                     Id = 1,
                     Username = "admin",
                     Email = "admin@inventory.com",
+                    // NOTE: BCrypt.Net.BCrypt is used here, ensure the library is correctly referenced.
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
                     FullName = "System Administrator",
                     Role = UserRole.Admin,
